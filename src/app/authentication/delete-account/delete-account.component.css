@@ -1,0 +1,34 @@
+.confirm-delete-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: #fff;
+  }
+  
+  h2 {
+    color: #d32f2f;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  .email-input {
+    width: 100%;
+  }
+  
+  .actions {
+    margin-top: 20px;
+  }
+  
+  button {
+    width: 100%;
+    font-weight: bold;
+  }
+  

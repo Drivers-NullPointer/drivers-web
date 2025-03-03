@@ -10,6 +10,10 @@ import { canActivateGuardLogin } from './authentication/guard/login.guard';
 
 export const routes: Routes = [
     {
+        path: 'delete-account',
+        loadComponent: () => import('./authentication/delete-account/delete-account.component').then(m => m.DeleteAccountComponent),
+    },
+    {
         path: 'terms-and-conditions',
         loadComponent: () => import('./home/conditions/conditions.component').then(m => m.ConditionsComponent),
     },
