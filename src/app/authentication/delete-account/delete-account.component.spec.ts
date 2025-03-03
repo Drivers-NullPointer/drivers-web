@@ -2,6 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DeleteAccountComponent } from './delete-account.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+
+const activeRoute = {
+  params: of({}),
+  snapshot: {
+    paramMap: {
+      get: () => 'test-id'
+    }
+  }
+} as any;
 
 describe('DeleteAccountComponent', () => {
   let component: DeleteAccountComponent;
@@ -9,7 +20,10 @@ describe('DeleteAccountComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DeleteAccountComponent, NoopAnimationsModule]
+      imports: [DeleteAccountComponent, NoopAnimationsModule],
+      providers: [
+        { provide: ActivatedRoute, useValue: activeRoute }
+      ]
     })
       .compileComponents();
 

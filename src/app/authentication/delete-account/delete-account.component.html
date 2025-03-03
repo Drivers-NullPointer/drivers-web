@@ -1,4 +1,4 @@
-
+<!-- confirm-delete.component.html -->
 <div class="confirm-delete-container">
     <h2>Eliminar cuenta</h2>
     <p>Para confirmar la eliminación, introduce tu correo electrónico:</p>
@@ -8,7 +8,21 @@
     </mat-form-field>
     <p>Una vez confirmada la eliminación, no podrás recuperar tu cuenta.</p>
     <p>Si deseas eliminar tu cuenta, introduce tu correo electrónico y haz clic en el botón de confirmación.</p>
+    <p><strong>Información importante:</strong></p>
+    <ul>
+      <li>Esta solicitud eliminará permanentemente todos tus datos asociados a <strong>Drivers</strong>, desarrollada por <strong>Ricardo Pajaro Coatl</strong>.</li>
+      <li>Para eliminar tu cuenta, sigue estos pasos:
+        <ol>
+          <li>Introduce tu correo electrónico en el campo proporcionado.</li>
+          <li>Haz clic en "Confirmar eliminación".</li>
+          <li>Se procesará tu solicitud en un plazo de 30 días y recibirás un correo electrónico de confirmación.</li>
+        </ol>
+      </li>
+      <li>Los siguientes datos serán eliminados: Foto de perfil, fecha de nacimiento, direcciones favoritas, mensajes</li>
+      <li>Algunos datos pueden retenerse por razones legales o de seguridad durante un período adicional.</li>
+      <li>Para más detalles, consulta nuestra <a [routerLink]="['/privacy-policy']">Política de Privacidad</a>.</li>
+    </ul>
     <div class="actions">
       <button mat-button color="warn" (click)="onConfirm()" [disabled]="!email">Confirmar eliminación</button>
     </div>
-  </div>
+</div>
