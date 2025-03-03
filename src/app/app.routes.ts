@@ -10,6 +10,14 @@ import { canActivateGuardLogin } from './authentication/guard/login.guard';
 
 export const routes: Routes = [
     {
+        path: 'terms-and-conditions',
+        loadComponent: () => import('./home/conditions/conditions.component').then(m => m.ConditionsComponent),
+    },
+    {
+        path: 'privacy-policy',
+        loadComponent: () => import('./home/privacity/privacity.component').then(m => m.PrivacityComponent),
+    },
+    {
         path: 'login',
         canActivate: [canActivateGuardLogin],
         loadComponent: () => import('./authentication/login/login.component').then(m => m.LoginComponent),
