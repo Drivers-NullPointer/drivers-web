@@ -2,12 +2,14 @@
     <table mat-table [dataSource]="data" matSort matSortDisableClear matSortDirection="asc"
         (matSortChange)="sortData($event)">
         @for (column of this.tableColumns; track $index) {
-        <ng-container matColumnDef="{{column.displayName}}" >
+        <ng-container matColumnDef="{{column.displayName}}">
             @if (column.isSortable) {
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="{{column.key}}" [style]="column.width ? {'width': column.width} : {}">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="{{column.key}}"
+                [style]="column.width ? {'width': column.width} : {}">
                 {{column.displayName}} </th>
             }@else {
-            <th mat-header-cell *matHeaderCellDef [style]="column.width ? {'width': column.width} : {}"> {{column.displayName}} </th>
+            <th mat-header-cell *matHeaderCellDef [style]="column.width ? {'width': column.width} : {}">
+                {{column.displayName}} </th>
             }
 
             <td mat-cell *matCellDef="let element">
@@ -22,7 +24,7 @@
             <td mat-cell *matCellDef="let element">
                 <div class="container-actions">
                     @for (action of this.paginationActions; track $index) {
-                    <button mat-mini-fab (click)="action.action(element)" [attr.aria-label]="action.description">
+                    <button mat-mini-fab (click)="launchAction(action, element)" [attr.aria-label]="action.description">
                         <mat-icon>{{action.icon}}</mat-icon>
                     </button>
                     }

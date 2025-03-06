@@ -153,4 +153,12 @@ export class PaginationGridComponent implements OnInit {
     this._currentPage.set(data.pagination.currentPage - 1);
     this._totalPages.set(data.pagination.totalPages);
   }
+
+  launchAction(action: PaginationActions, dataAction: any): void {
+    action.action(dataAction);
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement) {
+      activeElement.blur();
+    }
+  }
 }
