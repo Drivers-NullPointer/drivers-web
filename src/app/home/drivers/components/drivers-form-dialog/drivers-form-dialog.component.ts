@@ -13,6 +13,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { SelectProfilePictureComponent } from "../../../../shared/select-profile-picture/select-profile-picture.component";
 import { DatePipe } from '@angular/common';
+import { SimpleInputComponent } from "../../../../shared/custom-inputs/simple-input/simple-input.component";
 
 @Component({
   selector: 'app-edit-form-dialog',
@@ -27,7 +28,8 @@ import { DatePipe } from '@angular/common';
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    SelectProfilePictureComponent
+    SelectProfilePictureComponent,
+    SimpleInputComponent
   ],
   templateUrl: './drivers-form-dialog.component.html',
   styleUrl: './drivers-form-dialog.component.css'

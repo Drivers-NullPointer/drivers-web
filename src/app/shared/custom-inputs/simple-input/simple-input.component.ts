@@ -49,10 +49,16 @@ export class SimpleInputComponent {
     });
   }
 
-  showDisplayWith(value?: AutoCompleteValue): string {
+  showDisplayWith(value?: AutoCompleteValue | string): string {
     if (!value) {
+      console.error('Value is undefined');
       return '';
     }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
     const displayWith = this.displayWith();
     return displayWith ? displayWith(value) : value.value;
   }

@@ -16,22 +16,40 @@
         <div class="grid-form-driver">
             <app-select-profile-picture [photoData]="photoData()" [(photoFile)]="this.selecteFile"
                 class="full-width-grid"></app-select-profile-picture>
-            <mat-form-field>
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="name" name="name" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Apellidos</mat-label>
-                <input matInput formControlName="lastname" name="lastname" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Correo</mat-label>
-                <input matInput formControlName="email" name="email" type="email" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Telefono</mat-label>
-                <input matInput formControlName="phone" name="phone" type="tel" maxlength="20">
-            </mat-form-field>
+
+                <app-simple-input
+                    [control]="formDriver.controls.name"
+                    [name]="'name'"
+                    [label]="'Nombre'"
+                    [maxLength]="50"
+                    [isRequired]="true"
+                />
+            
+                <app-simple-input
+                    [control]="formDriver.controls.lastname"
+                    [name]="'lastname'"
+                    [label]="'Apellidos'"
+                    [maxLength]="50"
+                    [isRequired]="true"
+                />
+
+            
+                <app-simple-input
+                    [control]="formDriver.controls.email"
+                    [name]="'email'"
+                    [label]="'Correo'"
+                    [maxLength]="50"
+                    [type]="'email'"
+                />
+          
+                <app-simple-input
+                    [control]="formDriver.controls.phone"
+                    [name]="'phone'"
+                    [label]="'Telefono'"
+                    [maxLength]="20"
+                    [type]="'tel'"
+                />
+
             @if(this.action !== DialogAction.EDIT) {
             <mat-form-field>
                 <mat-label>Fecha de nacimiento</mat-label>
