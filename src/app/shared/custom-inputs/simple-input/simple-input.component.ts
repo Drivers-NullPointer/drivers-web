@@ -51,7 +51,6 @@ export class SimpleInputComponent {
 
   showDisplayWith(value?: AutoCompleteValue | string): string {
     if (!value) {
-      console.error('Value is undefined');
       return '';
     }
 

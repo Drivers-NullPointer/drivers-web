@@ -15,14 +15,10 @@
         }
     </mat-autocomplete>
     <!-- * error -->
-    @if (this.control().invalid && (this.control().dirty ||
-    this.control().touched)){
-    <mat-error>
-        @for (error of this.validators(); track $index) {
-        @if (this.control().hasError(error.type)) {
-        {{error.message}}
-        }
-        }
-    </mat-error>
+    @for (error of validators(); track $index) {
+        <mat-error *ngIf="control().hasError(error.type)">
+            {{error.message}}
+        </mat-error>
+        
     }
 </mat-form-field>

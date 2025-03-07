@@ -23,6 +23,7 @@
                     [label]="'Nombre'"
                     [maxLength]="50"
                     [isRequired]="true"
+                    [validators]="this.errors.name"
                 />
             
                 <app-simple-input
@@ -31,6 +32,7 @@
                     [label]="'Apellidos'"
                     [maxLength]="50"
                     [isRequired]="true"
+                    [validators]="this.errors.lastname"
                 />
 
             
@@ -40,6 +42,7 @@
                     [label]="'Correo'"
                     [maxLength]="50"
                     [type]="'email'"
+                    [validators]="this.errors.email"
                 />
           
                 <app-simple-input
@@ -48,6 +51,7 @@
                     [label]="'Telefono'"
                     [maxLength]="20"
                     [type]="'tel'"
+                    [validators]="this.errors.phone"
                 />
 
             @if(this.action !== DialogAction.EDIT) {

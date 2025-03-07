@@ -57,6 +57,24 @@ export class DriversFormDialogComponent implements OnInit {
     birthdate: new FormControl(this.drive?.birthdate, [Validators.required]),
   });
 
+  readonly errors = {
+    name: [
+      { type: 'required', message: 'El nombre es requerido' },
+    ],
+    lastname: [
+      { type: 'required', message: 'El apellido es requerido' },
+    ],
+    email: [
+      { type: 'required', message: 'El email es requerido' },
+      { type: 'pattern', message: 'El email no es valido' },
+    ],
+    phone: [
+      { type: 'required', message: 'El telefono es requerido' },
+    ],
+    birthdate: [
+      { type: 'required', message: 'La fecha de nacimiento es requerida' },
+    ],
+  }
 
 
   ngOnInit(): void {
@@ -74,6 +92,9 @@ export class DriversFormDialogComponent implements OnInit {
 
 
   save() {
+
+    this.formDriver.markAllAsTouched();
+
     if (this.formDriver.valid) {
       this.dialogRef.close({
         ...this.formDriver.value,
