@@ -104,8 +104,11 @@ export class DriversFormDialogComponent {
 
 
   private validateForm() {
-
+    console.log("acion", this.action);
+    console.log(DialogAction.CREATE);
+    console.log(this.action === DialogAction.CREATE);
     if (this.action === DialogAction.CREATE) {
+
       const birthdate = this.formDriver.controls.birthdate.value!;
 
       const birthdateDate = new Date(birthdate);

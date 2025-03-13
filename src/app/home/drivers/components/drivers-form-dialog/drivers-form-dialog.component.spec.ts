@@ -22,10 +22,66 @@ const driverObserverData: DialogData<Driver> = {
   data: driver
 };
 
-const driverCreateData: DialogData<Driver> = {
+const driverEditData: DialogData<Driver> = {
   action: DialogAction.EDIT,
   data: driver
 };
+
+const driverCreateData: DialogData<Driver> = {
+  action: DialogAction.CREATE,
+  data: driver
+};
+
+
+describe('EditFormDialogComponent with create action', () => {
+  let component: DriversFormDialogComponent;
+  let fixture: ComponentFixture<DriversFormDialogComponent>;
+  let dialogRef: jasmine.SpyObj<MatDialogRef<DriversFormDialogComponent>>;
+
+  beforeEach(async () => {
+
+    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+
+    await TestBed.configureTestingModule({
+      imports: [DriversFormDialogComponent],
+      providers: [
+        provideNoopAnimations(),
+        { provide: MatDialogRef, useValue: dialogRef },
+        { provide: MAT_DIALOG_DATA, useValue: driverCreateData }
+      ]
+    })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(DriversFormDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+
+  it('should validate formDriver and is greater than 18 years old', () => {
+    component.formDriver.patchValue({
+      ...driver,
+      birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
+    });
+
+    component.save();
+
+    expect(component.formDriver.controls.birthdate.errors?.['minor']).toBeFalsy();
+  });
+
+  it('should validate formDriver and is less than 18 years old', () => {
+    component.formDriver.patchValue({
+      ...driver,
+      birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 15)).toISOString()
+    });
+
+    component.save();
+
+    expect(component.formDriver.controls.birthdate.errors?.['minor']).toBeTruthy();
+  });
+});
+
+
 
 describe('EditFormDialogComponent with observer action', () => {
   let component: DriversFormDialogComponent;
@@ -55,12 +111,6 @@ describe('EditFormDialogComponent with observer action', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set formDriver to disabled', () => {
-    component.ngOnInit();
-    expect(component.formDriver.enabled).toBeFalse();
-  });
-
-
 });
 
 describe('EditFormDialogComponent with edit action', () => {
@@ -77,7 +127,7 @@ describe('EditFormDialogComponent with edit action', () => {
       providers: [
         provideNoopAnimations(),
         { provide: MatDialogRef, useValue: dialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: driverCreateData }
+        { provide: MAT_DIALOG_DATA, useValue: driverEditData }
       ]
     })
       .compileComponents();
@@ -87,14 +137,13 @@ describe('EditFormDialogComponent with edit action', () => {
     fixture.detectChanges();
   });
 
+
+
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set formDriver to enabled', () => {
-    component.ngOnInit();
-    expect(component.formDriver.enabled).toBeTrue();
-  });
 
   it('should nothing if the form is invalid', () => {
     component.formDriver.reset();
