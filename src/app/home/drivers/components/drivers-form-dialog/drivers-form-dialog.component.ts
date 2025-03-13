@@ -14,6 +14,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { SelectProfilePictureComponent } from "../../../../shared/select-profile-picture/select-profile-picture.component";
 import { DatePipe } from '@angular/common';
 import { SimpleInputComponent } from "../../../../shared/custom-inputs/simple-input/simple-input.component";
+import { DateInputComponent } from "../../../../shared/custom-inputs/date-imput/date-input.component";
 
 @Component({
   selector: 'app-edit-form-dialog',
@@ -29,12 +30,13 @@ import { SimpleInputComponent } from "../../../../shared/custom-inputs/simple-in
     MatNativeDateModule,
     MatIconModule,
     SelectProfilePictureComponent,
-    SimpleInputComponent
+    SimpleInputComponent,
+    DateInputComponent
   ],
   templateUrl: './drivers-form-dialog.component.html',
   styleUrl: './drivers-form-dialog.component.css'
 })
-export class DriversFormDialogComponent implements OnInit {
+export class DriversFormDialogComponent {
 
 
   readonly dialogRef: MatDialogRef<DriversFormDialogComponent> = inject(MatDialogRef<DriversFormDialogComponent>);
@@ -48,6 +50,10 @@ export class DriversFormDialogComponent implements OnInit {
 
   photoData = signal<string | undefined>(this.drive?.imageProfile).asReadonly();
   readonly selecteFile: File | undefined;
+
+
+
+  readonly maxDate = new Date();
 
   readonly formDriver = new FormGroup({
     name: new FormControl(this.drive?.name, [Validators.required]),
@@ -73,21 +79,12 @@ export class DriversFormDialogComponent implements OnInit {
     ],
     birthdate: [
       { type: 'required', message: 'La fecha de nacimiento es requerida' },
+      { type: 'minor', message: 'El conductor debe ser mayor de edad' },
     ],
   }
 
 
-  ngOnInit(): void {
-    if (this.action === DialogAction.OBSERVE) {
-      this.formDriver.disable();
-      return;
-    }
 
-    if (this.action === DialogAction.EDIT) {
-      this.formDriver.removeControl('birthdate' as never);
-      return;
-    }
-  }
 
 
 
@@ -95,11 +92,30 @@ export class DriversFormDialogComponent implements OnInit {
 
     this.formDriver.markAllAsTouched();
 
+    this.validateForm();
+
     if (this.formDriver.valid) {
       this.dialogRef.close({
         ...this.formDriver.value,
         imageProfileFile: this.selecteFile
       });
+    }
+  }
+
+
+  private validateForm() {
+
+    if (this.action === DialogAction.CREATE) {
+      const birthdate = this.formDriver.controls.birthdate.value!;
+
+      const birthdateDate = new Date(birthdate);
+
+      const age = new Date().getFullYear() - birthdateDate.getFullYear();
+
+      if (age < 18) {
+        this.formDriver.controls.birthdate.setErrors({ minor: true });
+      }
+
     }
   }
 }

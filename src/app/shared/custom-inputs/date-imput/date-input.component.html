@@ -1,0 +1,24 @@
+<mat-form-field>
+    <mat-label>{{ label() }}</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [placeholder]="placeholder()"
+      [formControl]="control()"
+      [required]="isRequired()"
+      [min]="minDate()"
+      [max]="maxDate()"
+    />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <!-- * hint -->
+    @if (hint()) {
+      <mat-hint> {{ hint() }} </mat-hint>
+    }
+    <!-- * mat-error -->
+    @for (error of validators(); track $index) {
+      <mat-error *ngIf="control().hasError(error.type)">{{
+        error.message
+      }}</mat-error>
+    }
+  </mat-form-field>

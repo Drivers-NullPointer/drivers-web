@@ -13,7 +13,7 @@ import { ToastService } from '../../shared/toast/toast.service';
 @Component({
   selector: 'app-drivers',
   standalone: true,
-  imports: [PaginationGridComponent, PaginationComponent],
+  imports: [PaginationComponent],
   templateUrl: './drivers.component.html',
   styleUrl: './drivers.component.css'
 })
