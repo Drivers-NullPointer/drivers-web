@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogAction } from '../../shared/model/Dialog.action';
 import { DriversFormDialogComponent } from './components/drivers-form-dialog/drivers-form-dialog.component';
 import { ToastService } from '../../shared/toast/toast.service';
+import { DriverStatus } from './model/driver.status';
 
 @Component({
   selector: 'app-drivers',
@@ -29,7 +30,9 @@ export class DriversComponent {
     { displayName: 'Apellido', key: 'lastname', isSortable: true },
     { displayName: 'Correo', key: 'email', isSortable: true },
     { displayName: 'Teléfono', key: 'phone', isSortable: false },
+    { displayName: 'Estatus', key: 'status', isSortable: true, transform: (value: string) => this.changeStatus(value) },
   ];
+
 
   readonly paginationActions: PaginationActions[] = [
     {
@@ -75,6 +78,23 @@ export class DriversComponent {
     response.afterClosed().subscribe({
       next: (result?: Driver) => this.OnCloseDialog(action, result, driver?.id),
     })
+  }
+
+  changeStatus = (status: any) => {
+    switch (status) {
+      case DriverStatus.NO_AVARIABLE:
+        return 'No disponible';
+      case DriverStatus.AVARIABLE:
+        return 'Disponible';
+      case DriverStatus.IN_TRIP:
+        return 'En viaje';
+      case DriverStatus.SUSPENDED:
+        return 'Suspendido';
+      case DriverStatus.NO_VERIFICATE:
+        return 'No verificado';
+      default:
+        return 'No disponible';
+    }
   }
 
 

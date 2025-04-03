@@ -46,7 +46,4 @@ export class PaginationComponent {
   search = "";
   isLoading = signal(true);
 
-  constructor() {
-
-  }
 }
