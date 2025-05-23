@@ -39,7 +39,7 @@ export class DriversComponent {
       name: 'Editar',
       icon: 'edit',
       description: 'Editar conductor',
-      action: (data: any) => this.actionDriver(DialogAction.EDIT, data)
+      action: (data: any) => this.showDriverForm(DialogAction.EDIT, data)
     },
     {
       name: 'Eliminar',
@@ -51,7 +51,7 @@ export class DriversComponent {
       name: 'Ver',
       icon: 'visibility',
       description: 'Ver conductor',
-      action: (data: any) => this.actionDriver(DialogAction.OBSERVE, data)
+      action: (data: any) => this.showDriverForm(DialogAction.OBSERVE, data)
     }
   ];
 
@@ -61,13 +61,13 @@ export class DriversComponent {
       name: 'Agregar',
       icon: 'add',
       description: 'Agregar conductor',
-      action: () => this.actionDriver(DialogAction.CREATE)
+      action: () => this.showDriverForm(DialogAction.CREATE)
     }
   ];
 
 
-  actionDriver(action: DialogAction, driver?: Driver) {
-    const response = this.dialog.open(DriversFormDialogComponent, {
+  showDriverForm(action: DialogAction, driver?: Driver) {
+    this.dialog.open(DriversFormDialogComponent, {
       width: '500px',
       data: {
         action: action,
@@ -75,9 +75,6 @@ export class DriversComponent {
       }
     });
 
-    response.afterClosed().subscribe({
-      next: (result?: Driver) => this.OnCloseDialog(action, result, driver?.id),
-    })
   }
 
   changeStatus = (status: any) => {
@@ -95,43 +92,6 @@ export class DriversComponent {
       default:
         return 'No disponible';
     }
-  }
-
-
-  private OnCloseDialog(action: DialogAction, driver?: Driver, id?: number) {
-    if (!driver) return;
-
-    if (action === DialogAction.CREATE) {
-      const createDriver: CreateDriverDto = {
-        ...driver,
-        birthdate: new Date(driver.birthdate).toISOString()
-      };
-      this.createDriver(createDriver);
-      return;
-    }
-    if (action === DialogAction.EDIT) {
-      const updateDriver: UpdateDriverDto = { ...driver };
-      this.updateDriver(id!, updateDriver);
-      return;
-    }
-  }
-
-  private createDriver(createDriverDto: CreateDriverDto) {
-    this.driversService.createDriver(createDriverDto).subscribe({
-      next: () => this.toast.showSuccess('Conductor creado', 'Se ha creado un nuevo conductor'),
-      error: (error) => {
-        this.toast.showError('Error', 'No se ha podido crear el conductor')
-      }
-    })
-  }
-
-  private updateDriver(id: number, updateDriver: UpdateDriverDto) {
-    this.driversService.updateDriver(id, updateDriver).subscribe({
-      next: () => this.toast.showSuccess('Conductor actualizado', 'Se ha actualizado el conductor'),
-      error: (error) => {
-        this.toast.showError('Error', 'No se ha podido actualizar el conductor')
-      }
-    })
   }
 
   private deleteDriver(id: number) {

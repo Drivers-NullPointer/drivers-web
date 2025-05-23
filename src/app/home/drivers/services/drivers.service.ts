@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, Signal } from '@angular/core';
 import { IPaginationServices } from '../../../shared/pagination/interfaces/IPaginationServices';
-import { BehaviorSubject, Observable, pipe, Subject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, pipe, Subject, tap, throwError } from 'rxjs';
 import { PaginatedResult } from '../../../shared/pagination/model/pagination.result';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -55,7 +55,11 @@ export class DriversService extends PaginationServices {
   updateDriver(id: number, driver: UpdateDriverDto) {
     const driverFormData = this.driverToFormData(driver);
     return this.http.patch<Driver>(`${this.controller}/${id}`, driverFormData).pipe(
-      tap(() => this.notifyChange())
+      tap(() => this.notifyChange()),
+      catchError((error) => {
+        const customError = error?.error ?? error;
+        return throwError(() => customError);
+      })
     );
   }
 
