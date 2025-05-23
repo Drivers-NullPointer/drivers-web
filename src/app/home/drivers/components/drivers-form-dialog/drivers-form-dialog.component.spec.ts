@@ -5,6 +5,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogData } from '../../model/dialog.data';
 import { Driver } from '../../model/driver.types';
 import { DialogAction } from '../../../../shared/model/Dialog.action';
+import { DriversService } from '../../services/drivers.service';
+import { ToastService } from '../../../../shared/toast/toast.service';
 
 
 const driver = {
@@ -37,17 +39,23 @@ describe('EditFormDialogComponent with create action', () => {
   let component: DriversFormDialogComponent;
   let fixture: ComponentFixture<DriversFormDialogComponent>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<DriversFormDialogComponent>>;
+  let driversServiceMock: jasmine.SpyObj<DriversService>;
+  let toastServiceMock: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
 
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
       imports: [DriversFormDialogComponent],
       providers: [
         provideNoopAnimations(),
         { provide: MatDialogRef, useValue: dialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: driverCreateData }
+        { provide: MAT_DIALOG_DATA, useValue: driverCreateData },
+        { provide: DriversService, useValue: driversServiceMock },
+        { provide: ToastService, useValue: toastServiceMock }
       ]
     })
       .compileComponents();
@@ -86,18 +94,23 @@ describe('EditFormDialogComponent with create action', () => {
 describe('EditFormDialogComponent with observer action', () => {
   let component: DriversFormDialogComponent;
   let fixture: ComponentFixture<DriversFormDialogComponent>;
+  let driversServiceMock: jasmine.SpyObj<DriversService>;
+  let toastServiceMock: jasmine.SpyObj<ToastService>;
 
 
   beforeEach(async () => {
 
-
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
       imports: [DriversFormDialogComponent],
       providers: [
         provideNoopAnimations(),
         { provide: MatDialogRef, useValue: {} },
-        { provide: MAT_DIALOG_DATA, useValue: driverObserverData }
+        { provide: MAT_DIALOG_DATA, useValue: driverObserverData },
+        { provide: DriversService, useValue: driversServiceMock },
+        { provide: ToastService, useValue: toastServiceMock }
       ]
     })
       .compileComponents();
@@ -117,17 +130,23 @@ describe('EditFormDialogComponent with edit action', () => {
   let component: DriversFormDialogComponent;
   let fixture: ComponentFixture<DriversFormDialogComponent>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<DriversFormDialogComponent>>;
+  let driversServiceMock: jasmine.SpyObj<DriversService>;
+  let toastServiceMock: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
 
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
       imports: [DriversFormDialogComponent],
       providers: [
         provideNoopAnimations(),
         { provide: MatDialogRef, useValue: dialogRef },
-        { provide: MAT_DIALOG_DATA, useValue: driverEditData }
+        { provide: MAT_DIALOG_DATA, useValue: driverEditData },
+        { provide: DriversService, useValue: driversServiceMock },
+        { provide: ToastService, useValue: toastServiceMock }
       ]
     })
       .compileComponents();

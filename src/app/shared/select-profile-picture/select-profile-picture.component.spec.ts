@@ -22,12 +22,12 @@ describe('SelectProfilePictureComponent', () => {
   });
 
   it('should trigger file input', () => {
-    const event = new Event('click');
-    spyOn(event, 'preventDefault');
+    const fileInput = fixture.debugElement.nativeElement.querySelector('input[type="file"]');
 
-    component.triggerFileInput(event);
+    const clickSpy = spyOn(fileInput, 'click');
+    component.triggerFileInput();
 
-    expect(event.preventDefault).toHaveBeenCalled();
+    expect(clickSpy).toHaveBeenCalled();
   });
 
 
