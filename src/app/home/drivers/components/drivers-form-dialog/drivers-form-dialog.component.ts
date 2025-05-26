@@ -99,7 +99,7 @@ export class DriversFormDialogComponent {
     this.validateForm();
 
     if (!this.formDriver.valid) {
-      this.toast.showErrorMessage({ message: "Los campos son requeridos" })
+      this.toast.showErrorMessage({ message: "Verifique sus datos" });
       return;
     }
 
@@ -111,22 +111,13 @@ export class DriversFormDialogComponent {
     }
 
     if (this.action === DialogAction.EDIT) {
-      const updateDriverDto = this.getUpdateDriverDto();
+      const updateDriverDto = this.getCreateDriverDto();
       this.updateDriver(this.drive!.id, updateDriverDto);
       return;
     }
   }
 
 
-  private getUpdateDriverDto(): UpdateDriverDto {
-    return {
-      name: this.formDriver.controls.name.value ?? undefined,
-      lastname: this.formDriver.controls.lastname.value ?? undefined,
-      email: this.formDriver.controls.email.value ?? undefined,
-      phone: this.formDriver.controls.phone.value ?? undefined,
-      imageProfileFile: this.selecteFile
-    }
-  }
 
 
   private getCreateDriverDto(): CreateDriverDto {
@@ -209,7 +200,7 @@ export class DriversFormDialogComponent {
     })
   }
 
-  private getErrorMessage(
+  getErrorMessage(
     error: string,
     defaultMessage: string
   ): string {
