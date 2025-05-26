@@ -28,4 +28,24 @@ describe('ToastService', () => {
     service.showError('message', 'title');
     expect(toastrService.error).toHaveBeenCalled();
   });
+
+  it('should call showSuccessMessage with default title', () => {
+    service.showSuccessMessage({ message: 'message' });
+    expect(toastrService.success).toHaveBeenCalledWith('message', 'Exito');
+  });
+
+  it('should call showErrorMessage with default title', () => {
+    service.showErrorMessage({ message: 'message' });
+    expect(toastrService.error).toHaveBeenCalledWith('message', 'Error');
+  });
+
+  it('should call showSuccessMessage with custom title', () => {
+    service.showSuccessMessage({ title: 'Custom Title', message: 'message' });
+    expect(toastrService.success).toHaveBeenCalledWith('message', 'Custom Title');
+  });
+
+  it('should call showErrorMessage with custom title', () => {
+    service.showErrorMessage({ title: 'Custom Title', message: 'message' });
+    expect(toastrService.error).toHaveBeenCalledWith('message', 'Custom Title');
+  });
 });
