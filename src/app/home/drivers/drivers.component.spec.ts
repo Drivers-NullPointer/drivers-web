@@ -11,6 +11,7 @@ import { PaginatedResult } from '../../shared/pagination/model/pagination.result
 import { Driver } from './model/driver.types';
 import { of, throwError } from 'rxjs';
 import { messages } from '../../constants/constants';
+import { DriverStatus } from './model/driver.status';
 
 
 const paginationResponseDriver: PaginatedResult<Driver> = {
@@ -30,7 +31,7 @@ const driver: Driver = {
   email: 'email',
   phone: 'phone',
   imageProfile: 'imageProfile',
-  birthdate: new Date().toISOString(),
+  birthdate: new Date().toISOString()
 };
 
 
@@ -173,5 +174,32 @@ describe('DriversComponent', () => {
 
   });
 
+
+  it('should show correct map status in the column ', () => {
+
+    const status = DriverStatus.AVARIABLE;
+    const expectedStatus = component.driverColumns[5]?.transform?.(status);
+
+    expect(expectedStatus).toBe(expectedStatus);
+
+  });
+
+
+  it('should return correct label for each driver status', () => {
+    const expectations = [
+      { input: DriverStatus.NO_AVARIABLE, expected: 'No disponible' },
+      { input: DriverStatus.AVARIABLE, expected: 'Disponible' },
+      { input: DriverStatus.IN_TRIP, expected: 'En viaje' },
+      { input: DriverStatus.SUSPENDED, expected: 'Suspendido' },
+      { input: DriverStatus.NO_VERIFICATE, expected: 'No verificado' },
+      { input: 'UNKNOWN', expected: 'No disponible' },
+      { input: null, expected: 'No disponible' },
+      { input: undefined, expected: 'No disponible' },
+    ];
+
+    for (const { input, expected } of expectations) {
+      expect(component.changeStatus(input)).toBe(expected);
+    }
+  });
 
 });

@@ -1,3 +1,5 @@
+import { DriverStatus } from "./driver.status";
+
 export type Driver = {
     id: number;
     name: string;
