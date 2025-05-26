@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PaginatedResult } from '../../../shared/pagination/model/pagination.result';
 import { Driver, CreateDriverDto, UpdateDriverDto } from '../model/driver.types';
-import { generatePaginationQuery } from '../../../utils/generate-pagination-query';
+import { generatePaginationQuery } from '../../../utils/query-pagination/generate-pagination-query';
 
 
 const paginationRequest = {
@@ -121,6 +121,43 @@ describe('DriversService', () => {
 
     const req = httpController.expectOne(`${service['controller']}/1`);
     req.flush(driver);
+  });
+
+  it("should update a driver with error without custom error", (done) => {
+    const updateDriverDtoWithError: UpdateDriverDto = {
+      ...updateDriverDto,
+      imageProfileFile: new File([''], 'test.jpg')
+    };
+
+    service.updateDriver(1, updateDriverDtoWithError).subscribe({
+      next: () => { },
+      error: (error) => {
+        expect(error).toBeInstanceOf(ErrorEvent);
+        done();
+      }
+    });
+
+    const req = httpController.expectOne(`${service['controller']}/1`);
+    req.error(new ErrorEvent('error'));
+  });
+
+  it('should update a driver with error with custom error', (done) => {
+    const updateDriverDtoWithError: UpdateDriverDto = {
+      ...updateDriverDto,
+      imageProfileFile: new File([''], 'test.jpg')
+    };
+
+    service.updateDriver(1, updateDriverDtoWithError).subscribe({
+      next: () => { },
+      error: (error) => {
+        expect(error).toEqual({ message: 'error' });
+        done();
+      }
+    });
+
+    const req = httpController.expectOne(`${service['controller']}/1`);
+    req.flush({ message: 'error' }, { status: 500, statusText: 'error' });
+
   });
 
   it('should create a driver with img profile', (done) => {

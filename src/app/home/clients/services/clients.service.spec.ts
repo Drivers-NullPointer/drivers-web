@@ -6,7 +6,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { PaginatedResult } from '../../../shared/pagination/model/pagination.result';
 import { Client } from '../model/client';
 import { PaginationRequest } from '../../../shared/pagination/model/pagination.request';
-import { generatePaginationQuery } from '../../../utils/generate-pagination-query';
+import { generatePaginationQuery } from '../../../utils/query-pagination/generate-pagination-query';
 
 
 const paginationResponseClient: PaginatedResult<Client> = {

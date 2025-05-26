@@ -7,6 +7,7 @@ import { Driver } from '../../model/driver.types';
 import { DialogAction } from '../../../../shared/model/Dialog.action';
 import { DriversService } from '../../services/drivers.service';
 import { ToastService } from '../../../../shared/toast/toast.service';
+import { of } from 'rxjs';
 
 
 const driver = {
@@ -71,6 +72,8 @@ describe('EditFormDialogComponent with create action', () => {
       ...driver,
       birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
     });
+
+    driversServiceMock.createDriver.and.returnValue(of({ ...driver, id: 1 }));
 
     component.save();
 
@@ -173,6 +176,9 @@ describe('EditFormDialogComponent with edit action', () => {
   });
 
   it('should close dialog with formDriver value', () => {
+
+    driversServiceMock.updateDriver.and.returnValue(of(driver));
+
     component.formDriver.patchValue({
       ...driver,
     });

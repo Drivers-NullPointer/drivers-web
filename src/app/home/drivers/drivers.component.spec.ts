@@ -10,6 +10,7 @@ import { DriversService } from './services/drivers.service';
 import { PaginatedResult } from '../../shared/pagination/model/pagination.result';
 import { Driver } from './model/driver.types';
 import { of, throwError } from 'rxjs';
+import { messages } from '../../constants/constants';
 
 
 const paginationResponseDriver: PaginatedResult<Driver> = {
@@ -41,7 +42,7 @@ describe('DriversComponent', () => {
   let driversServiceSpy: jasmine.SpyObj<DriversService>;
 
   beforeEach(async () => {
-    toastsServiceSpy = jasmine.createSpyObj<ToastService>('ToastService', ['showSuccess', 'showError']);
+    toastsServiceSpy = jasmine.createSpyObj<ToastService>('ToastService', ['showSuccess', 'showError', 'showSuccessMessage', 'showErrorMessage']);
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
     driversServiceSpy = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver', 'deleteDriver', 'getAllPaginated', 'notifyChangeSignal']);
 
@@ -93,10 +94,6 @@ describe('DriversComponent', () => {
 
     component.paginationActions[0].action(driver);
     expect(dialogSpy.open).toHaveBeenCalled();
-    expect(toastsServiceSpy.showSuccess).toHaveBeenCalledWith(
-      'Conductor actualizado',
-      'Se ha actualizado el conductor'
-    )
   });
 
   it('should edit driver update error', () => {
@@ -111,10 +108,6 @@ describe('DriversComponent', () => {
 
     component.paginationActions[0].action(driver);
     expect(dialogSpy.open).toHaveBeenCalled();
-    expect(toastsServiceSpy.showError).toHaveBeenCalledWith(
-      'Error',
-      'No se ha podido actualizar el conductor'
-    )
   });
 
 
@@ -130,10 +123,6 @@ describe('DriversComponent', () => {
 
     component.generalActions[0].action();
     expect(dialogSpy.open).toHaveBeenCalled();
-    expect(toastsServiceSpy.showSuccess).toHaveBeenCalledWith(
-      'Conductor creado',
-      'Se ha creado un nuevo conductor'
-    )
   });
 
   it('should create driver and error response', () => {
@@ -148,10 +137,6 @@ describe('DriversComponent', () => {
 
     component.generalActions[0].action();
     expect(dialogSpy.open).toHaveBeenCalled();
-    expect(toastsServiceSpy.showError).toHaveBeenCalledWith(
-      'Error',
-      'No se ha podido crear el conductor'
-    )
   });
 
   it('should delete driver and success response', () => {
@@ -159,10 +144,10 @@ describe('DriversComponent', () => {
     driversServiceSpy.deleteDriver.and.returnValue(of(driver));
 
     component.paginationActions[1].action(driver);
-    expect(toastsServiceSpy.showSuccess).toHaveBeenCalledWith(
-      'Conductor eliminado',
-      'Se ha eliminado el conductor'
-    )
+    expect(toastsServiceSpy.showSuccessMessage).toHaveBeenCalledWith({
+      title: 'Conductor eliminado',
+      message: 'Se ha eliminado el conductor'
+    })
   });
 
   it('should delete driver and error response', () => {
@@ -170,10 +155,9 @@ describe('DriversComponent', () => {
     driversServiceSpy.deleteDriver.and.returnValue(throwError(() => new Error('error')));
 
     component.paginationActions[1].action(driver);
-    expect(toastsServiceSpy.showError).toHaveBeenCalledWith(
-      'Error',
-      'No se ha podido eliminar el conductor'
-    )
+    expect(toastsServiceSpy.showErrorMessage).toHaveBeenCalledWith({
+      message: 'No se ha podido eliminar el conductor'
+    })
   });
 
   it('should see the drivers', () => {

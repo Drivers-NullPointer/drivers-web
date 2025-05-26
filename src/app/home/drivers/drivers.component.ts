@@ -1,7 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CreateDriverDto, Driver, UpdateDriverDto } from './model/driver.types';
+import { Component, inject } from '@angular/core';
+import { Driver } from './model/driver.types';
 import { DriversService } from './services/drivers.service';
-import { PaginationGridComponent } from "../../shared/pagination/components/pagination-grid/pagination-grid.component";
 import { ColumnName } from '../../shared/pagination/model/column.name';
 import { PaginationComponent } from "../../shared/pagination/components/pagination/pagination.component";
 import { PaginationActions } from '../../shared/pagination/model/pagination.actions';
@@ -95,10 +94,13 @@ export class DriversComponent {
   }
 
   private deleteDriver(id: number) {
+    console.log('Eliminando conductor con id:', id);
     this.driversService.deleteDriver(id).subscribe({
-      next: () => this.toast.showSuccess('Conductor eliminado', 'Se ha eliminado el conductor'),
+      next: () => this.toast.showSuccessMessage({
+        title: 'Conductor eliminado', message: 'Se ha eliminado el conductor'
+      }),
       error: (error) => {
-        this.toast.showError('Error', 'No se ha podido eliminar el conductor')
+        this.toast.showErrorMessage({ message: 'No se ha podido eliminar el conductor' })
       }
     })
   }

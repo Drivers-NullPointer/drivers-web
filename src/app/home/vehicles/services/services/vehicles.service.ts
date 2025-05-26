@@ -5,7 +5,7 @@ import { PaginationRequest } from '../../../../shared/pagination/model/paginatio
 import { PaginatedResult } from '../../../../shared/pagination/model/pagination.result';
 import { Vehicle } from '../../model/vehicle';
 import { environment } from '../../../../../environments/environment';
-import { generatePaginationQuery } from '../../../../utils/generate-pagination-query';
+import { generatePaginationQuery } from '../../../../utils/query-pagination/generate-pagination-query';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Make } from '../../model/make';
 import { Model } from '../../model/model';

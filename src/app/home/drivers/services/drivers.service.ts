@@ -5,9 +5,10 @@ import { PaginatedResult } from '../../../shared/pagination/model/pagination.res
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { PaginationRequest } from '../../../shared/pagination/model/pagination.request';
-import { generatePaginationQuery } from '../../../utils/generate-pagination-query';
+import { generatePaginationQuery } from '../../../utils/query-pagination/generate-pagination-query';
 import { Driver, UpdateDriverDto, CreateDriverDto } from '../model/driver.types';
 import { PaginationServices } from '../../../shared/pagination/interfaces/PaginationServices';
+import { catchCustomError } from '../../../utils/catch-error/catch-error.fs';
 
 @Injectable({
   providedIn: 'root'
@@ -56,10 +57,7 @@ export class DriversService extends PaginationServices {
     const driverFormData = this.driverToFormData(driver);
     return this.http.patch<Driver>(`${this.controller}/${id}`, driverFormData).pipe(
       tap(() => this.notifyChange()),
-      catchError((error) => {
-        const customError = error?.error ?? error;
-        return throwError(() => customError);
-      })
+      catchCustomError
     );
   }
 
