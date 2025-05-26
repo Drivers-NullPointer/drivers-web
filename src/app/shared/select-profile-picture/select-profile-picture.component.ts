@@ -19,8 +19,7 @@ export class SelectProfilePictureComponent {
   photoData = model<string | undefined>();
   photoFile = model<File | undefined>();
 
-  triggerFileInput(event: Event) {
-    event.preventDefault();
+  triggerFileInput() {
     this.fileInput.nativeElement.click();
   }
 

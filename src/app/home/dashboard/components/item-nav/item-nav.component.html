@@ -1,5 +1,5 @@
 <mat-nav-list>
-    <a mat-list-item [routerLink]="navDestination.route">
+    <a mat-list-item [routerLink]="[navDestination.route]" routerLinkActive="active-link">
         <mat-icon matListItemIcon>{{navDestination.icon}}</mat-icon>
         <div matListItemTitle>{{navDestination.label}}</div>
     </a>

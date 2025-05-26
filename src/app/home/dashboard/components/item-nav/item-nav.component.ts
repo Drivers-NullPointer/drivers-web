@@ -2,7 +2,8 @@ import { Component, Input } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { NavDestination } from '../../model/NavDestinations';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-item-nav',
@@ -10,7 +11,10 @@ import { RouterModule } from '@angular/router';
   imports: [
     MatListModule,
     MatIconModule,
-    RouterModule
+    RouterModule,
+    RouterLinkActive,
+    RouterLink,
+    CommonModule
   ],
   templateUrl: './item-nav.component.html',
   styleUrl: './item-nav.component.css'

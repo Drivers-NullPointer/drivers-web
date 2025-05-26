@@ -1,49 +1,95 @@
-<form [formGroup]="formDriver" (ngSubmit)="save()">
-    <h1 mat-dialog-title class="centered-text">
-        @switch (this.action) {
-        @case (DialogAction.CREATE) {
-        Alta de Conductor
-        }
-        @case (DialogAction.EDIT) {
-        Modificación de Conductor
-        }
-        @case (DialogAction.OBSERVE) {
-        Detalle de Conductor
-        }
-        }
-    </h1>
-    <mat-dialog-content class="mat-typography">
-        <div class="grid-form-driver">
-            <app-select-profile-picture [photoData]="photoData()" [(photoFile)]="this.selecteFile"
-                class="full-width-grid"></app-select-profile-picture>
-            <mat-form-field>
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="name" name="name" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Apellidos</mat-label>
-                <input matInput formControlName="lastname" name="lastname" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Correo</mat-label>
-                <input matInput formControlName="email" name="email" type="email" maxlength="50">
-            </mat-form-field>
-            <mat-form-field>
-                <mat-label>Telefono</mat-label>
-                <input matInput formControlName="phone" name="phone" type="tel" maxlength="20">
-            </mat-form-field>
-            @if(this.action !== DialogAction.EDIT) {
-            <mat-form-field>
-                <mat-label>Fecha de nacimiento</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="birthdate" required name="birthdate">
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+<div class="container-relative">
+    @if(this.isLoading()) {
+        <app-center-progress/>
+    }
+    <form [formGroup]="formDriver" (ngSubmit)="save()">
+        <h1 mat-dialog-title class="centered-text">
+            @switch (this.action) {
+            @case (DialogAction.CREATE) {
+            Alta de Conductor
             }
-        </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Cancel</button>
-        <button mat-button type="submit">Save</button>
-    </mat-dialog-actions>
-</form>
+            @case (DialogAction.EDIT) {
+            Edición de Conductor
+            }
+            @case (DialogAction.OBSERVE) {
+            Detalle de Conductor
+            }
+            }
+        </h1>
+        <mat-dialog-content class="mat-typography">
+            <div class="grid-form-driver">
+                <app-select-profile-picture 
+                    [photoData]="photoData()"
+                    [(photoFile)]="this.selecteFile"
+                    class="full-width-grid"
+                />
+
+                    <app-simple-input
+                        [control]="formDriver.controls.name"
+                        [name]="'name'"
+                        [label]="'Nombre'"
+                        [maxLength]="50"
+                        [isRequired]="true"
+                        [validators]="this.errors.name"
+                        [isEnable]="this.action !== DialogAction.OBSERVE"
+                    />
+                
+                    <app-simple-input
+                        [control]="formDriver.controls.lastname"
+                        [name]="'lastname'"
+                        [label]="'Apellidos'"
+                        [maxLength]="50"
+                        [isRequired]="true"
+                        [validators]="this.errors.lastname"
+                        [isEnable]="this.action !== DialogAction.OBSERVE"
+                    />
+
+                
+                    <app-simple-input
+                        [control]="formDriver.controls.email"
+                        [name]="'email'"
+                        [label]="'Correo'"
+                        [maxLength]="50"
+                        [type]="'email'"
+                        [validators]="this.errors.email"
+                        [isEnable]="this.action !== DialogAction.OBSERVE"
+                        [isRequired]="true"
+                    />
+            
+                    <app-simple-input
+                        [control]="formDriver.controls.phone"
+                        [name]="'phone'"
+                        [label]="'Telefono'"
+                        [maxLength]="20"
+                        [type]="'tel'"
+                        [validators]="this.errors.phone"
+                        [isEnable]="this.action !== DialogAction.OBSERVE"
+                        [isRequired]="true"
+                    />
+
+            
+                    <app-date-input
+                        [control]="formDriver.controls.birthdate"
+                        [label]="'Fecha de nacimiento'"
+                        [isRequired]="true"
+                        [validators]="this.errors.birthdate"
+                        [isEnable]="this.action !== DialogAction.OBSERVE && this.action !== DialogAction.EDIT"
+                        [maxDate]="this.maxDate"
+                        [hint]="this.action !== DialogAction.CREATE ? 'No se puede modificar la fecha de nacimiento' : ''"
+                    />
+            
+            </div>
+        </mat-dialog-content>
+        <mat-dialog-actions align="end">
+            <button 
+            mat-button 
+            mat-dialog-close
+            [disabled]="this.isLoading()"
+            >Cancel</button>
+            <button 
+            mat-button
+             type="submit"
+             >Save</button>
+        </mat-dialog-actions>
+    </form>
+</div>

@@ -9,6 +9,7 @@ import { signal } from '@angular/core';
 import { ColumnName } from '../../model/column.name';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PageEvent } from '@angular/material/paginator';
+import { PaginationActions } from '../../model/pagination.actions';
 
 
 
@@ -171,6 +172,48 @@ describe('PaginationGridComponent3', () => {
     );
     component.ngOnInit();
     expect(paginationService.getAllPaginated).toHaveBeenCalled();
+  });
+
+  it('debería ejecutar la acción y quitar el foco del elemento activo', () => {
+    // Mock de la acción
+    const mockAction = {
+      action: jasmine.createSpy('action'),
+    } as any;
+
+    const mockData = { test: 'data' };
+
+    // Crear un elemento simulado en el DOM
+    const mockElement = document.createElement('button');
+    spyOn(mockElement, 'blur');
+
+    // Simular que es el elemento activo
+    spyOnProperty(document, 'activeElement', 'get').and.returnValue(mockElement);
+
+    // Ejecutar el método
+    component.launchAction(mockAction, mockData);
+
+    // Verificar que la acción se ejecutó con los datos correctos
+    expect(mockAction.action).toHaveBeenCalledWith(mockData);
+
+    // Verificar que el elemento perdió el foco
+    expect(mockElement.blur).toHaveBeenCalled();
+  });
+
+  it('debería ejecutar la acción sin error si no hay elemento activo', () => {
+    const mockAction = {
+      action: jasmine.createSpy('action'),
+    } as any;
+
+    const mockData = { test: 'data' };
+
+    // Simular que no hay elemento activo
+    spyOnProperty(document, 'activeElement', 'get').and.returnValue(null);
+
+    // Ejecutar el método
+    component.launchAction(mockAction, mockData);
+
+    // Verificar que la acción se ejecutó
+    expect(mockAction.action).toHaveBeenCalledWith(mockData);
   });
 });
 

@@ -43,4 +43,10 @@ describe('SimpleInputComponent', () => {
     fixture.detectChanges();
     expect(component.showDisplayWith(value)).toBe('value');
   });
+
+  it('should show witoout displayWith', () => {
+    const value: AutoCompleteValue = { id: 'id', value: 'value' };
+    fixture.detectChanges();
+    expect(component.showDisplayWith(value)).toBe(value.value);
+  });
 });

@@ -1,11 +1,5 @@
 import { Routes } from '@angular/router';
-import { DriversComponent } from './home/drivers/drivers.component';
 import { canActivateGuardHome } from './authentication/guard/home.guard';
-import { VehiclesComponent } from './home/vehicles/vehicles.component';
-import { TripsComponent } from './home/trips/trips.component';
-import { ClientsComponent } from './home/clients/clients.component';
-import { RequestComponent } from './home/request/request.component';
-import { MapsComponent } from './shared/maps/maps.component';
 import { canActivateGuardLogin } from './authentication/guard/login.guard';
 
 export const routes: Routes = [
@@ -55,32 +49,33 @@ export const routes: Routes = [
 
 export const homeRoutes: Routes = [
     {
-        path: 'drivers',
-        component: DriversComponent,
-    },
-    {
-        path: 'vehicles',
-        component: VehiclesComponent,
-    },
-    {
-        path: 'trips',
-        component: TripsComponent,
-    },
-    {
-        path: 'clients',
-        component: ClientsComponent,
-    },
-    {
-        path: 'requests',
-        component: RequestComponent,
-    },
-    {
-        path: 'maps',
-        component: MapsComponent,
-    },
-    {
         path: '',
         redirectTo: 'drivers',
         pathMatch: 'full'
-    }
+    },
+    {
+        path: 'drivers',
+        loadComponent: () => import('./home/drivers/drivers.component').then(m => m.DriversComponent),
+    },
+    {
+        path: 'vehicles',
+        loadComponent: () => import('./home/vehicles/vehicles.component').then(m => m.VehiclesComponent),
+    },
+    {
+        path: 'trips',
+        loadComponent: () => import('./home/trips/trips.component').then(m => m.TripsComponent),
+    },
+    {
+        path: 'clients',
+        loadComponent: () => import('./home/clients/clients.component').then(m => m.ClientsComponent),
+    },
+    {
+        path: 'requests',
+        loadComponent: () => import('./home/request/request.component').then(m => m.RequestComponent),
+    },
+    {
+        path: 'maps',
+        loadComponent: () => import('./shared/maps/maps.component').then(m => m.MapsComponent),
+    },
+
 ]

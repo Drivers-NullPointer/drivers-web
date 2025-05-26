@@ -1,5 +1,5 @@
 import { HttpParams } from "@angular/common/http";
-import { PaginationRequest } from "../shared/pagination/model/pagination.request";
+import { PaginationRequest } from "../../shared/pagination/model/pagination.request";
 export const generatePaginationQuery = (paginationRequest: PaginationRequest): HttpParams => {
 
     let query = new HttpParams();

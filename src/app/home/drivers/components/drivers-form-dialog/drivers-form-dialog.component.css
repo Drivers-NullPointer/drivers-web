@@ -3,11 +3,11 @@
 
 .grid-form-driver{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     padding-top: 10px;
     box-sizing: border-box;
     row-gap: 10px;
+    column-gap: 20px;
 }
 
 

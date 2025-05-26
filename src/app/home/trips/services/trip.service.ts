@@ -5,7 +5,7 @@ import { PaginationRequest } from '../../../shared/pagination/model/pagination.r
 import { PaginatedResult } from '../../../shared/pagination/model/pagination.result';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { generatePaginationQuery } from '../../../utils/generate-pagination-query';
+import { generatePaginationQuery } from '../../../utils/query-pagination/generate-pagination-query';
 import { Trip } from '../model/Trip';
 import { PaginationServices } from '../../../shared/pagination/interfaces/PaginationServices';
 
