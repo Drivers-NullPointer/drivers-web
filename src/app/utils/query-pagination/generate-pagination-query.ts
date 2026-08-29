@@ -4,7 +4,7 @@ export const generatePaginationQuery = (paginationRequest: PaginationRequest): H
 
     let query = new HttpParams();
 
-    if (paginationRequest.page) {
+    if (paginationRequest.page !== undefined) {
         query = query.set('page', paginationRequest.page.toString());
     }
     if (paginationRequest.limit) {
@@ -14,10 +14,10 @@ export const generatePaginationQuery = (paginationRequest: PaginationRequest): H
         query = query.set('search', paginationRequest.search);
     }
     if (paginationRequest.sort) {
-        query = query.set('sort', paginationRequest.sort);
+        query = query.set('sort', paginationRequest.sort.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase());
     }
     if (paginationRequest.order) {
-        query = query.set('order', paginationRequest.order);
+        query = query.set('order', paginationRequest.order.toUpperCase());
     }
 
     return query;

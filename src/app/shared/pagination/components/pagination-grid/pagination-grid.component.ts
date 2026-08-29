@@ -132,7 +132,7 @@ export class PaginationGridComponent implements OnInit {
 
   private calculatePageInfo(): PaginationRequest {
     return {
-      page: this.paginator.pageIndex + 1,
+      page: this.paginator.pageIndex,
       limit: this.paginator.pageSize,
       sort: this.sort.active,
       order: this.sort.direction as SortDirection,
@@ -148,9 +148,9 @@ export class PaginationGridComponent implements OnInit {
   }
 
   private calculateNewPageInfo(data: PaginatedResult<unknown>): void {
-    this._totalItems.set(data.pagination.totalItems);
-    this._pageSize.set(data.pagination.pageSize);
-    this._currentPage.set(data.pagination.currentPage - 1);
+    this._totalItems.set(data.pagination.totalElements);
+    this._pageSize.set(data.pagination.limit);
+    this._currentPage.set(data.pagination.page);
     this._totalPages.set(data.pagination.totalPages);
   }
 

@@ -14,7 +14,7 @@ import { PaginationServices } from '../../../shared/pagination/interfaces/Pagina
 })
 export class TripService extends PaginationServices {
   private readonly http: HttpClient = inject(HttpClient);
-  private readonly controller = environment.apiUrl + environment.apiVersion + '/trips';
+  private readonly controller = environment.apiUrl + environment.apiVersion + '/admin/trips';
 
   getAllPaginated<Trip>(paginationRequest: PaginationRequest): Observable<PaginatedResult<Trip>> {
     const params = generatePaginationQuery(paginationRequest);
