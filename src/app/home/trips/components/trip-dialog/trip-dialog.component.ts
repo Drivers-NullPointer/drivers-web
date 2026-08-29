@@ -29,7 +29,7 @@ export class TripDialogComponent {
 
   private trip = this.dialogData.data;
 
-  readonly polylineEncode = this.trip?.tracking ? this.trip.tracking : null;
+  readonly polylineEncode = this.trip?.route?.encodedPolyline ?? null;
 
 
 }

@@ -24,9 +24,9 @@ export class TripsComponent {
     { displayName: 'Id', key: 'id', isSortable: false, width: '20%' },
     { displayName: 'Fecha de inicio', key: 'startAt', isSortable: true, transform: this.dateToString },
     { displayName: 'Fecha de fin', key: 'endAt', isSortable: true, transform: this.dateToString },
-    { displayName: 'Estado', key: 'tripState', isSortable: true, transform: this.tripStateToString },
-    { displayName: 'Cliente', key: 'client', isSortable: false, transform: (client) => client.name },
-    { displayName: 'Conductor', key: 'driver', isSortable: false, transform: (driver) => driver.name }
+    { displayName: 'Estado', key: 'state', isSortable: true, transform: this.tripStateToString },
+    { displayName: 'Cliente', key: 'clientId', isSortable: false },
+    { displayName: 'Conductor', key: 'driver', isSortable: false, transform: (driver) => driver ? `${driver.name} ${driver.lastname}` : 'Sin conductor' }
   ];
 
   readonly paginationActions: PaginationActions[] = [
@@ -59,9 +59,12 @@ export class TripsComponent {
 
   tripStateToString(state: string): string {
     switch (state) {
-      case 'ACTIVE': return 'En curso';
-      case 'FINISHED': return 'Finalizado';
-      case 'CANCELED': return 'Cancelado';
+      case 'ASSIGNED': return 'Asignado';
+      case 'DRIVER_EN_ROUTE': return 'Conductor en camino';
+      case 'DRIVER_ARRIVED': return 'Conductor en el punto';
+      case 'IN_PROGRESS': return 'En curso';
+      case 'COMPLETED': return 'Finalizado';
+      case 'CANCELLED': return 'Cancelado';
       default: return 'Desconocido';
     }
   }
