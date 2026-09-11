@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, finalize, forkJoin, of, switchMap, tap, timer, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DispatchClient, DispatchRequest, DispatchService } from './dispatch.service';
+import { DispatchClient, DispatchHistory, DispatchRequest, DispatchService } from './dispatch.service';
 import { Driver } from '../drivers/model/driver.types';
 import { RequestTrip } from '../request/model/request';
 import { Trip } from '../trips/model/Trip';
@@ -35,6 +35,11 @@ export class DispatchComponent {
   readonly clientError = signal('');
   readonly clientSearch = this.fb.nonNullable.control('');
   readonly selectedDriver = signal<Driver | null>(null);
+  readonly historyTarget = signal<Trip | null>(null);
+  readonly historyRows = signal<DispatchHistory[]>([]);
+  readonly historyLoading = signal(false);
+  readonly historyError = signal('');
+  private historyVersion = 0;
   driverSearch = '';
   driverPage = 0;
   requestPage = 0;
@@ -163,5 +168,21 @@ export class DispatchComponent {
     this.error.set(error.status === 409 ? 'La operación entró en conflicto. Actualiza: la solicitud o el conductor pudieron cambiar.'
       : error.status === 0 || error.status >= 500 ? 'No se pudo confirmar la operación. Consulta el listado antes de repetirla para evitar duplicados.'
       : 'Operación rechazada. Verifica los datos y la disponibilidad; actualiza antes de reintentar.');
+  }
+
+  showHistory(trip: Trip): void {
+    if (this.historyLoading() && this.historyTarget()?.id === trip.id) return;
+    const version = ++this.historyVersion;
+    this.historyTarget.set(trip); this.historyRows.set([]); this.historyError.set(''); this.historyLoading.set(true);
+    this.api.history(trip.id).pipe(timeout(15000), takeUntilDestroyed(this.destroy),
+      finalize(() => { if (version === this.historyVersion) this.historyLoading.set(false); })
+    ).subscribe({
+      next: rows => { if (version === this.historyVersion) this.historyRows.set(rows); },
+      error: () => { if (version === this.historyVersion) this.historyError.set('No se pudo consultar el historial. Reintenta.'); }
+    });
+  }
+
+  closeHistory(): void {
+    this.historyVersion++; this.historyTarget.set(null); this.historyRows.set([]); this.historyLoading.set(false);
   }
 }

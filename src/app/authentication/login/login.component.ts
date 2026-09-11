@@ -79,7 +79,7 @@ export class LoginComponent {
     this.formLogin.disable();
     this.authService.login(loginDTO)
       .subscribe({
-        next: () => this.router.navigate(['/overview']),
+        next: () => this.router.navigate(['/dispatch']),
         error: (error) => this.validateErrors(error)
       })
       .add(() => {
@@ -110,7 +110,7 @@ export class LoginComponent {
     }
 
     if (error.status === 403) {
-      this.dialogService.showErrorMessage('Esta cuenta no tiene acceso al panel administrativo. Usa una cuenta ADMIN o SUPERADMIN.');
+      this.dialogService.showErrorMessage('Esta cuenta no tiene acceso a la central. Usa una cuenta ADMIN, SUPERADMIN u OPERATOR.');
       return;
     }
 

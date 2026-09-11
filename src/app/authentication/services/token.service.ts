@@ -8,6 +8,8 @@ import { TokenData } from '../model/TokenData';
 export class TokenService {
 
   private accessToken?: string = undefined;
+  private version = 0;
+  get sessionVersion(): number { return this.version; }
 
   constructor() { }
 
@@ -21,6 +23,7 @@ export class TokenService {
   }
 
   clearAccessToken(): void {
+    this.version++;
     this.accessToken = undefined;
   }
 

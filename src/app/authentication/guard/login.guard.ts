@@ -7,7 +7,7 @@ export const canActivateGuardLogin: CanActivateFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    return authService.ensureAdminSession().pipe(
-        map(isAdmin => isAdmin ? router.createUrlTree(['/overview']) : true)
+    return authService.ensurePanelSession().pipe(
+        map(isAdmin => isAdmin ? router.createUrlTree(['/dispatch']) : true)
     );
 }

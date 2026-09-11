@@ -53,11 +53,25 @@
     </section>
   </div>
   <section class="panel trips-panel">
-    <div class="page-header"><div><h2><mat-icon>route</mat-icon> Seguimiento de viajes</h2><a routerLink="/trips">Abrir historial y detalles</a></div><label>Estado<select [(ngModel)]="tripState" (ngModelChange)="filterTrips()" [disabled]="loading() || busy()">@for (state of tripStates; track state) { <option [value]="state">{{ label(state) }}</option> }</select></label></div>
+    <div class="page-header"><div><h2><mat-icon>route</mat-icon> Seguimiento de viajes</h2><p>Consulta los cambios y motivos desde el historial de cada viaje.</p></div><label>Estado<select [(ngModel)]="tripState" (ngModelChange)="filterTrips()" [disabled]="loading() || busy()">@for (state of tripStates; track state) { <option [value]="state">{{ label(state) }}</option> }</select></label></div>
     <div class="table-scroll"><table><thead><tr><th>Viaje</th><th>Conductor</th><th>Cliente</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
-      @for (trip of trips()?.result; track trip.id) { <tr><td>{{ trip.id }}</td><td>{{ trip.driver ? trip.driver.name + ' ' + trip.driver.lastname : '#' + trip.driverId }}</td><td>#{{ trip.clientId }}</td><td>{{ label(trip.state) }}</td><td>@if (trip.state !== 'COMPLETED' && trip.state !== 'CANCELLED') { <button mat-button color="warn" (click)="cancelTarget = trip; cancelReason = ''" [disabled]="busy() || loading() || !!error()">Cancelar…</button> }</td></tr> } @empty { <tr><td colspan="5">Sin viajes en este estado.</td></tr> }
+      @for (trip of trips()?.result; track trip.id) { <tr><td>{{ trip.id }}</td><td>{{ trip.driver ? trip.driver.name + ' ' + trip.driver.lastname : '#' + trip.driverId }}</td><td>#{{ trip.clientId }}</td><td>{{ label(trip.state) }}</td><td><button mat-button (click)="showHistory(trip)">Historial</button>@if (trip.state !== 'COMPLETED' && trip.state !== 'CANCELLED') { <button mat-button color="warn" (click)="cancelTarget = trip; cancelReason = ''" [disabled]="busy() || loading() || !!error()">Cancelar…</button> }</td></tr> } @empty { <tr><td colspan="5">Sin viajes en este estado.</td></tr> }
     </tbody></table></div>
     <nav class="pager" aria-label="Páginas de viajes"><button mat-button (click)="changePage('trip', -1)" [disabled]="tripPage === 0 || loading() || busy()">Anterior</button><span>{{ tripPage + 1 }}</span><button mat-button (click)="changePage('trip', 1)" [disabled]="tripPage + 1 >= (trips()?.pagination?.totalPages ?? 0) || loading() || busy()">Siguiente</button></nav>
     @if (cancelTarget; as trip) { <form class="cancel-box" (ngSubmit)="cancel()"><h3>Confirmar cancelación del viaje {{ trip.id }}</h3><p>Termina el viaje y queda registrada con tu usuario.</p><label>Motivo obligatorio<textarea name="reason" [(ngModel)]="cancelReason" maxlength="500" required [disabled]="busy()"></textarea></label><button mat-flat-button color="warn" [disabled]="busy() || !cancelReason.trim()">Confirmar cancelación</button> <button type="button" mat-button (click)="cancelTarget = null" [disabled]="busy()">Volver</button></form> }
   </section>
+  @if (historyTarget(); as trip) {
+    <section class="panel" [attr.aria-busy]="historyLoading()" aria-label="Historial del viaje">
+      <h2>Historial del viaje {{ trip.id }}</h2>
+      <button mat-button (click)="closeHistory()">Cerrar historial</button>
+      @if (historyLoading()) { <p role="status">Cargando historial…</p> }
+      @if (historyError()) { <p role="alert">{{ historyError() }}</p><button mat-button (click)="showHistory(trip)">Reintentar</button> }
+      @for (entry of historyRows(); track entry.id) {
+        <article><p><strong>{{ label(entry.newState) }}</strong> · {{ utc(entry.createdAt) | date:'short' }}</p>
+          <p>Usuario #{{ entry.changedByUserId }} · {{ entry.actorRole }}</p>
+          @if (entry.reason) { <p>{{ entry.reason }}</p> }
+        </article>
+      } @empty { @if (!historyLoading() && !historyError()) { <p>Sin cambios registrados.</p> } }
+    </section>
+  }
 </main>

@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../../authentication/services/auth.service';
+import { TokenService } from '../../../../authentication/services/token.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -22,16 +23,19 @@ export class ToolbarComponent {
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly tokens = inject(TokenService);
   readonly isLoggingOut = signal(false);
 
   logout(): void {
     if (this.isLoggingOut()) return;
     this.isLoggingOut.set(true);
+    const logoutVersion = this.tokens.sessionVersion + 1;
     this.authService.logout().pipe(
       finalize(() => {
-        this.authService.clearSession();
         this.isLoggingOut.set(false);
-        this.router.navigate(['/login']);
+        if (this.tokens.sessionVersion === logoutVersion && !this.tokens.getAccessToken()) {
+          this.router.navigate(['/login']);
+        }
       })
     ).subscribe({ error: () => undefined });
   }

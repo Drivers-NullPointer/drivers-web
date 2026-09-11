@@ -9,6 +9,7 @@ import { Trip } from '../trips/model/Trip';
 export interface DispatchClient { id: number; name: string; lastname: string; email: string; }
 export interface DispatchAddress { street: string; latitude: number; longitude: number; }
 export interface DispatchRequest { clientId: number; startAddress: DispatchAddress; endAddress: DispatchAddress; idempotencyKey: string; }
+export interface DispatchHistory { id: number; previousState: string | null; newState: string; changedByUserId: number; actorRole: string; reason: string | null; createdAt: string; }
 
 @Injectable({ providedIn: 'root' })
 export class DispatchService {
@@ -30,6 +31,7 @@ export class DispatchService {
     return this.http.get<PaginatedResult<Trip>>(`${this.base}/trips`, { params: { page, limit: 20, state } });
   }
   create(request: DispatchRequest) { return this.http.post<RequestTrip>(`${this.base}/trip-requests`, request); }
+  history(tripId: string) { return this.http.get<DispatchHistory[]>(`${this.base}/trips/${tripId}/history`); }
   assign(requestId: number, driverId: number) {
     return this.http.post<Trip>(`${this.base}/trip-requests/${requestId}/assign`, { driverId });
   }

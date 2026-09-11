@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { canActivateGuardHome } from './authentication/guard/home.guard';
+import { canActivateGuardHome, canActivatePanelChild } from './authentication/guard/home.guard';
 import { canActivateGuardLogin } from './authentication/guard/login.guard';
 
 export const routes: Routes = [
@@ -30,6 +30,7 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./home/dashboard/components/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [canActivateGuardHome],
+        canActivateChild: [canActivatePanelChild],
         loadChildren: () => homeRoutes,
     },
     {

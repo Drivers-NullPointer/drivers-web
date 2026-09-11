@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { LoginDTO } from '../model/LoginDTO';
-import { catchError, finalize, map, Observable, of, shareReplay, switchMap, tap, throwError, timeout } from 'rxjs';
+import { catchError, defer, finalize, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap, throwError, timeout } from 'rxjs';
+import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { LoginResponse } from '../model/LoginResponse';
 import { environment } from '../../../environments/environment';
@@ -16,7 +17,13 @@ export class AuthService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly tokenService: TokenService = inject(TokenService);
   private readonly controller = environment.apiUrl + environment.apiVersion + '/auth';
-  private readonly adminDashboardPath = environment.apiUrl + environment.apiVersion + '/admin/dashboard';
+  private readonly panelSessionPath = environment.apiUrl + environment.apiVersion + '/admin/session';
+  private readonly router = inject(Router);
+  private readonly sessionCancelled = new Subject<void>();
+  private refreshInFlight$?: Observable<LoginResponse>;
+  private readonly panelRole = signal<number | null>(null);
+  readonly roleId = this.panelRole.asReadonly();
+  readonly isAdmin = computed(() => this.panelRole() === 1 || this.panelRole() === 2);
   private adminSessionCheck$?: Observable<boolean>;
 
   readonly loginPath = `${this.controller}/login`;
@@ -28,10 +35,18 @@ export class AuthService {
 
 
   login(LoginDTO: LoginDTO) {
-    return this.http.post<LoginResponse>(this.loginPath, LoginDTO).pipe(
+    return defer(() => {
+      this.clearSession();
+      const version = this.tokenService.sessionVersion;
+      return this.http.post<LoginResponse>(this.loginPath, LoginDTO).pipe(
+      timeout(15000),
+      takeUntil(this.sessionCancelled),
       switchMap((response: LoginResponse) => {
-        if (response.user.roleId !== 1 && response.user.roleId !== 2) {
+        if (version !== this.tokenService.sessionVersion) return throwError(() => new Error('SESSION_CHANGED'));
+        if (![1, 2, 6].includes(response.user.roleId)) {
           return this.http.post<void>(this.logoutPath, null).pipe(
+            timeout(15000),
+            takeUntil(this.sessionCancelled),
             catchError(() => of(undefined)),
             switchMap(() => throwError(() => ({
               status: 403,
@@ -41,49 +56,74 @@ export class AuthService {
         }
 
         this.tokenService.setAccessToken(response.token);
+        this.panelRole.set(response.user.roleId);
         return of(response);
       })
-    );
+      );
+    });
   }
 
   refreshToken() {
-    return this.http.post<LoginResponse>(this.refreshTokenPath, null).pipe(
-      tap((response: LoginResponse) => {
-        this.tokenService.setAccessToken(response.token);
-      })
-    );
+    return defer(() => {
+      if (this.refreshInFlight$) return this.refreshInFlight$;
+      const version = this.tokenService.sessionVersion;
+      const refresh$ = this.http.post<LoginResponse>(this.refreshTokenPath, null).pipe(
+        timeout(15000),
+        takeUntil(this.sessionCancelled),
+        tap(response => {
+          if (version !== this.tokenService.sessionVersion) throw new Error('SESSION_CHANGED');
+          this.tokenService.setAccessToken(response.token);
+          this.panelRole.set(response.user.roleId);
+        }),
+        catchError(error => {
+          if (error.status === 401 || error.status === 403) this.expireSession(version);
+          return throwError(() => error);
+        }),
+        finalize(() => { if (this.refreshInFlight$ === refresh$) this.refreshInFlight$ = undefined; }),
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
+      this.refreshInFlight$ = refresh$;
+      return refresh$;
+    });
   }
 
   logout() {
-    return this.http.post<void>(this.logoutPath, null).pipe(
-      finalize(() => this.tokenService.clearAccessToken())
-    );
+    return defer(() => {
+      this.clearSession();
+      return this.http.post<void>(this.logoutPath, null).pipe(timeout(15000), takeUntil(this.sessionCancelled));
+    });
   }
 
   /**
    * Restaura la cookie de sesión y verifica autorización real contra un
-   * endpoint protegido para ADMIN/SUPERADMIN. No basta con tener un JWT.
+   * endpoint protegido para ADMIN/SUPERADMIN/OPERATOR. No basta con tener un JWT.
    */
-  ensureAdminSession(): Observable<boolean> {
+  ensurePanelSession(): Observable<boolean> {
     if (this.adminSessionCheck$) {
       return this.adminSessionCheck$;
     }
 
+    const version = this.tokenService.sessionVersion;
     const tokenReady$ = this.tokenService.getAccessToken()
       ? of(true)
       : this.refreshToken().pipe(map(() => true));
 
-    this.adminSessionCheck$ = tokenReady$.pipe(
-      switchMap(() => this.http.get(this.adminDashboardPath)),
-      map(() => true),
+    const check$ = tokenReady$.pipe(
+      switchMap(() => this.http.get<{ roleId: number }>(this.panelSessionPath)),
+      map(response => {
+        if (version !== this.tokenService.sessionVersion) return false;
+        if (![1, 2, 6].includes(response.roleId)) throw { status: 403 };
+        this.panelRole.set(response.roleId);
+        return true;
+      }),
       timeout(15000),
       catchError(error => {
-        this.tokenService.clearAccessToken();
+        if (version !== this.tokenService.sessionVersion) return of(false);
 
         // Una sesión válida pero sin rol administrativo debe cerrarse para
         // evitar que el refresh cookie vuelva a abrir el panel.
         if (error?.status === 403) {
-          return this.http.post<void>(this.logoutPath, null).pipe(
+          return this.logout().pipe(
             catchError(() => of(undefined)),
             map(() => false)
           );
@@ -91,15 +131,26 @@ export class AuthService {
 
         return of(false);
       }),
-      finalize(() => this.adminSessionCheck$ = undefined),
+      finalize(() => { if (this.adminSessionCheck$ === check$) this.adminSessionCheck$ = undefined; }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
-    return this.adminSessionCheck$;
+    this.adminSessionCheck$ = check$;
+    return check$;
   }
 
   clearSession(): void {
     this.tokenService.clearAccessToken();
+    this.panelRole.set(null);
+    this.sessionCancelled.next();
+    this.refreshInFlight$ = undefined;
+    this.adminSessionCheck$ = undefined;
+  }
+
+  expireSession(version: number): void {
+    if (version !== this.tokenService.sessionVersion) return;
+    this.clearSession();
+    void this.router.navigate(['/login']);
   }
 
   verifyAccount(token: string) {

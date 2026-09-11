@@ -1,4 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
+import { AuthService } from '../../../../authentication/services/auth.service';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { NavDestination, navDestinations } from '../../model/NavDestinations';
@@ -22,7 +23,11 @@ import { RouterOutlet } from '@angular/router';
 export class DashboardComponent {
   @ViewChild('drawer') drawer?: import('@angular/material/sidenav').MatDrawer;
 
-  listDestinations: NavDestination[] = navDestinations
+  private readonly auth = inject(AuthService);
+  get listDestinations(): NavDestination[] {
+    return this.auth.isAdmin() ? navDestinations : this.auth.roleId() === 6
+      ? navDestinations.filter(item => item.route === 'dispatch') : [];
+  }
 
   constructor() { }
 

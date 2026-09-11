@@ -10,7 +10,7 @@ describe('DispatchComponent', () => {
   let api: jasmine.SpyObj<DispatchService>;
   const empty = { result: [], pagination: { page: 0, limit: 20, totalElements: 0, totalPages: 0 } };
   beforeEach(() => {
-    api = jasmine.createSpyObj('DispatchService', ['drivers', 'requests', 'trips', 'clients', 'create', 'assign', 'cancel']);
+    api = jasmine.createSpyObj('DispatchService', ['drivers', 'requests', 'trips', 'clients', 'create', 'assign', 'cancel', 'history']);
     api.drivers.and.returnValue(of(empty)); api.requests.and.returnValue(of(empty)); api.trips.and.returnValue(of(empty));
     api.clients.and.returnValue(of(empty));
     TestBed.configureTestingModule({ imports: [DispatchComponent], providers: [provideRouter([]), { provide: DispatchService, useValue: api }] });
@@ -75,6 +75,21 @@ describe('DispatchComponent', () => {
     expect(c.message()).toContain('CANCELLED');
     c.form.setValue(form); c.create(); expect(api.create.calls.mostRecent().args[0].idempotencyKey).not.toBe(first);
     fixture.destroy();
+  });
+  it('loads audited history without exposing editing screens', () => {
+    const fixture = TestBed.createComponent(DispatchComponent);
+    api.history.and.returnValue(of([{ id: 1, previousState: null, newState: 'ASSIGNED', changedByUserId: 6,
+      actorRole: 'OPERATOR', reason: 'TRIP_REQUEST_ASSIGNED_BY_OPERATOR', createdAt: '2026-09-11T12:00:00Z' }]));
+    fixture.componentInstance.showHistory({ id: 'trip-1' } as any); fixture.detectChanges();
+    expect(api.history).toHaveBeenCalledOnceWith('trip-1'); expect(fixture.nativeElement.textContent).toContain('OPERATOR');
+    fixture.componentInstance.closeHistory(); expect(fixture.componentInstance.historyTarget()).toBeNull(); fixture.destroy();
+  });
+  it('does not populate a different trip with stale history and reports errors', () => {
+    const fixture = TestBed.createComponent(DispatchComponent); const c = fixture.componentInstance;
+    const first = new Subject<any[]>(); api.history.and.returnValues(first, throwError(() => new Error('offline')));
+    c.showHistory({ id: 'first' } as any); c.showHistory({ id: 'second' } as any);
+    first.next([{ id: 1 }]); first.complete();
+    expect(c.historyRows()).toEqual([]); expect(c.historyError()).toBeTruthy(); expect(c.historyLoading()).toBeFalse(); fixture.destroy();
   });
   it('interprets offset-free expiration as UTC', () => {
     const fixture = TestBed.createComponent(DispatchComponent);
