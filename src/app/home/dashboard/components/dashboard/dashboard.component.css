@@ -6,7 +6,26 @@
 }
 
 .main-dashboard{
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     width: 100%;
+    background: #f4f7fb;
 }
+
+.navigation-drawer {
+    width: 244px;
+    padding: 22px 12px;
+    border-right: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.navigation-heading {
+    padding: 0 14px 10px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.dashboard-content { background: #f4f7fb; }
 

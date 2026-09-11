@@ -4,7 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MapsComponent } from '../../../../shared/maps/maps.component';
 import { DialogData } from '../../../drivers/model/dialog.data';
-import { RequestTrip } from '../../model/request';
+import { Address, RequestTrip } from '../../model/request';
+import { RequestStates, requestStatesToLabel } from '../../model/RequestStates.enum';
 import { MapsPoint } from '../../../../shared/maps/model/MapsPoint';
 import { DistancePipe } from "../../../../shared/pipes/distance.pipe";
 
@@ -49,6 +50,19 @@ export class RequestDialogComponent {
 
     return points;
   })
+
+  addressLabel(address?: Address): string {
+    if (!address) return 'Sin dirección';
+    return [address.street, address.streetNumber, address.colony, address.city].filter(Boolean).join(', ');
+  }
+
+  statusLabel(status?: string): string {
+    return status ? requestStatesToLabel(status as RequestStates) : 'Sin estado';
+  }
+
+  dateLabel(value?: string): string {
+    return value ? new Date(value).toLocaleString('es-MX') : 'Sin fecha';
+  }
 
 
 }

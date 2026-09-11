@@ -1,15 +1,17 @@
 export interface Trip {
     id: string;
     startAt: Date;
-    endAt: null;
-    tripState: string;
-    client: {
+    endAt: string | null;
+    state: string;
+    clientId: number;
+    driverId: number;
+    driver?: {
         id: number;
         name: string;
-    };
-    driver: {
-        id: number;
-        name: string;
-    };
-    tracking?: string;
+        lastname: string;
+    } | null;
+    route?: {
+        encodedPolyline: string;
+        polylinePrecision: number;
+    } | null;
 }

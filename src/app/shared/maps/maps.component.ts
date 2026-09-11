@@ -4,6 +4,7 @@ import { GoogleMap, GoogleMapsModule } from '@angular/google-maps';
 import { MapsLoaderService } from './services/maps-loader.service';
 import { MapsPoint } from './model/MapsPoint';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import * as polyline from '@mapbox/polyline';
 
 @Component({
@@ -11,7 +12,8 @@ import * as polyline from '@mapbox/polyline';
   standalone: true,
   imports: [
     GoogleMapsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   templateUrl: './maps.component.html',
   styleUrl: './maps.component.css'
@@ -32,6 +34,7 @@ export class MapsComponent implements OnInit {
 
   readonly listPoints = input<MapsPoint[]>([]);
   readonly polylineEncode = input<string | null>(null);
+  readonly embedded = input(false);
 
   listPointPolilyne = signal<MapsPoint[]>([]);
 
@@ -74,8 +77,11 @@ export class MapsComponent implements OnInit {
       mapId: mapId,
       streetViewControl: false,
       zoomControl: false,
-      fullscreenControl: false,
+      fullscreenControl: true,
       mapTypeControl: false,
+      center: { lat: 19.4326, lng: -99.1332 },
+      zoom: 11,
+      gestureHandling: 'greedy',
     });
   }
   private decodePolyline(polylineEncode: string): MapsPoint[] {
@@ -101,7 +107,7 @@ export class MapsComponent implements OnInit {
 
     this._polylineOptions.set({
       path: this.listPointPolilyne(),
-      strokeColor: '#00000',
+      strokeColor: '#111827',
       strokeOpacity: 1.0,
       strokeWeight: 2,
     });
@@ -111,6 +117,7 @@ export class MapsComponent implements OnInit {
 
 
   updateMapCenterPoints(): void {
+    if (this.listPoints().length === 0) return;
     const markerBounds = new google.maps.LatLngBounds();
     for (const point of this.listPoints()) {
       const latLng = new google.maps.LatLng(point.lat, point.lng);
@@ -120,6 +127,7 @@ export class MapsComponent implements OnInit {
   }
 
   updatePolylinePoints(): void {
+    if (this.listPointPolilyne().length === 0) return;
     const markerBounds = new google.maps.LatLngBounds();
     for (const point of this.listPointPolilyne()) {
       const latLng = new google.maps.LatLng(point.lat, point.lng);

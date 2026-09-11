@@ -1,13 +1,15 @@
-<mat-toolbar>
-    <button mat-icon-button class="toolbar-icon" aria-label="Example icon-button with menu icon">
+<mat-toolbar class="app-toolbar">
+    <button mat-icon-button class="toolbar-icon" aria-label="Abrir o cerrar navegación" (click)="menuClick.emit()">
       <mat-icon>menu</mat-icon>
     </button>
-    <span>Drivers</span>
+    <div class="brand">
+      <span class="brand-mark">D</span>
+      <span><strong>Drivers</strong><small>Centro de operaciones</small></span>
+    </div>
     <span class="example-spacer"></span>
-    <button mat-icon-button class="toolbar-icon" aria-label="Example icon-button with heart icon">
-      <mat-icon>favorite</mat-icon>
-    </button>
-    <button mat-icon-button class="toolbar-icon" aria-label="Example icon-button with share icon">
-      <mat-icon>share</mat-icon>
+    <span class="admin-label">Administrador</span>
+    <button mat-stroked-button class="logout-button" (click)="logout()" [disabled]="isLoggingOut()">
+      <mat-icon>logout</mat-icon>
+      Salir
     </button>
   </mat-toolbar>

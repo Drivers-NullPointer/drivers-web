@@ -19,3 +19,50 @@
     grid-gap: 10px;
     justify-content: left;
 }
+
+.mat-elevation-z4 {
+    position: relative;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .06) !important;
+}
+
+.table-loading {
+    position: absolute;
+    inset: 54px 0 58px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #475569;
+    background: rgba(255, 255, 255, .78);
+    backdrop-filter: blur(2px);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+table { min-width: 840px; }
+th { color: #475569; font-weight: 700; background: #f8fafc !important; }
+tr.mat-mdc-row:hover { background: #fffbeb; }
+tr.mat-mdc-row { height: 62px; transition: background-color .15s ease, box-shadow .15s ease; }
+tr.mat-mdc-row:nth-child(even) { background: #fbfdff; }
+tr.mat-mdc-row:hover { position: relative; z-index: 1; box-shadow: inset 3px 0 #fbbf24; }
+.mat-mdc-header-row { height: 54px; }
+.mat-mdc-header-cell { position: sticky; top: 0; z-index: 2; text-transform: uppercase; letter-spacing: .045em; font-size: 11px; }
+.mat-mdc-cell { max-width: 280px; line-height: 1.35; }
+
+td, th { padding-left: 18px !important; padding-right: 18px !important; }
+td { color: #334155; }
+.row-action { color: #475569; background: #f1f5f9; }
+.row-action:hover { color: #92400e; background: #fef3c7; }
+.status-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 999px; color: #475569; background: #f1f5f9; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; }
+.status-chip[data-value="AVAILABLE"], .status-chip[data-value="AVARIABLE"], .status-chip[data-value="COMPLETED"] { color: #047857; background: #d1fae5; }
+.status-chip[data-value="AVAILABLE"] .status-dot, .status-chip[data-value="AVARIABLE"] .status-dot, .status-chip[data-value="COMPLETED"] .status-dot { background: #10b981; }
+.status-chip[data-value="ASSIGNED"], .status-chip[data-value="IN_PROGRESS"], .status-chip[data-value="DRIVER_EN_ROUTE"], .status-chip[data-value="DRIVER_ARRIVED"] { color: #0369a1; background: #e0f2fe; }
+.status-chip[data-value="ASSIGNED"] .status-dot, .status-chip[data-value="IN_PROGRESS"] .status-dot, .status-chip[data-value="DRIVER_EN_ROUTE"] .status-dot, .status-chip[data-value="DRIVER_ARRIVED"] .status-dot { background: #0ea5e9; }
+.status-chip[data-value="CANCELLED"], .status-chip[data-value="EXPIRED"], .status-chip[data-value="SUSPENDED"] { color: #be123c; background: #ffe4e6; }
+.status-chip[data-value="CANCELLED"] .status-dot, .status-chip[data-value="EXPIRED"] .status-dot, .status-chip[data-value="SUSPENDED"] .status-dot { background: #f43f5e; }

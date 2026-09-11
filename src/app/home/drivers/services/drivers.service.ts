@@ -15,7 +15,7 @@ import { catchCustomError } from '../../../utils/catch-error/catch-error.fs';
 })
 export class DriversService extends PaginationServices {
   private readonly http: HttpClient = inject(HttpClient);
-  private readonly controller = environment.apiUrl + environment.apiVersion + '/drivers';
+  private readonly controller = environment.apiUrl + environment.apiVersion + '/admin/drivers';
 
   getAllPaginated<Driver>(
     paginationRequest: PaginationRequest
@@ -41,21 +41,14 @@ export class DriversService extends PaginationServices {
     return formData;
   }
 
-  createDriver(createDriverDto: CreateDriverDto) {
-    const createDriverDtoFormData = this.driverToFormData(createDriverDto);
-    return this.http.post<Driver>(this.controller, createDriverDtoFormData).pipe(
-      tap(() => this.notifyChange())
-    );
-
-  }
-  deleteDriver(id: number) {
-    return this.http.delete(`${this.controller}/${id}`).pipe(
+  deleteDriver(driverId: number) {
+    return this.http.delete<void>(`${this.controller}/${driverId}`).pipe(
       tap(() => this.notifyChange())
     );
   }
   updateDriver(id: number, driver: UpdateDriverDto) {
     const driverFormData = this.driverToFormData(driver);
-    return this.http.patch<Driver>(`${this.controller}/${id}`, driverFormData).pipe(
+    return this.http.put<Driver>(`${this.controller}/${id}`, driverFormData).pipe(
       tap(() => this.notifyChange()),
       catchCustomError
     );

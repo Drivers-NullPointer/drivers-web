@@ -41,20 +41,13 @@ export class RequestComponent {
   ];
 
 
-  readonly generalActions = [
-    {
-      name: 'Agregar',
-      icon: 'add',
-      description: 'Agregar solicitud',
-      action: () => {
-        throw new Error('Not implemented');
-      }
-    }
-  ];
+  readonly generalActions = [];
 
 
   addressToString(address: Address): string {
-    return address.shortAddress || 'Sin dirección';
+    return [address.street, address.streetNumber, address.colony, address.city]
+      .filter(Boolean)
+      .join(', ') || 'Sin dirección';
   }
 
   dateToString(date: Date): string {

@@ -1,0 +1,63 @@
+<main class="dispatch-page">
+  <header class="page-header">
+    <div><p class="eyebrow">CENTRAL DE TAXIS</p><h1>Despacho de viajes</h1><p>Registra el recorrido y asigna un conductor.</p>
+      <small>Última actualización: {{ updatedAt() ? (updatedAt() | date:'HH:mm:ss') : 'Sin datos' }} · Consulta cada 15 segundos</small></div>
+    <div><label><input type="checkbox" [(ngModel)]="autoRefresh"> Actualización automática</label>
+      <button mat-stroked-button (click)="refresh()" [disabled]="loading() || busy()"><mat-icon>refresh</mat-icon> {{ loading() ? 'Actualizando…' : 'Actualizar' }}</button></div>
+  </header>
+  @if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+  @if (message()) { <p class="notice success" role="status">{{ message() }}</p> }
+  <div class="dispatch-grid">
+    <section class="panel request-form">
+      <h2><mat-icon>add_location_alt</mat-icon> Solicitar viaje</h2><p>Para clientes registrados. El servidor calcula la tarifa y la vigencia.</p>
+      <label>Buscar cliente por nombre o correo<input type="search" [formControl]="clientSearch" placeholder="Al menos 2 caracteres"></label>
+      @if (clientError()) { <p role="alert">{{ clientError() }}</p> }
+      <form [formGroup]="form" (ngSubmit)="create()"><fieldset [disabled]="busy()">
+        <label>Cliente<select formControlName="clientId"><option [ngValue]="null">Selecciona un cliente</option>
+          @for (client of clients(); track client.id) { <option [ngValue]="client.id">{{ client.name }} {{ client.lastname }} · {{ client.email }}</option> }
+        </select></label>
+        <h3>1. Punto de recogida</h3>
+        <label>Dirección o referencia<input formControlName="startStreet" maxlength="255" placeholder="Calle, número y colonia"></label>
+        <div class="coordinates"><label>Latitud<input type="number" step="any" formControlName="startLat" min="-90" max="90"></label><label>Longitud<input type="number" step="any" formControlName="startLng" min="-180" max="180"></label></div>
+        <h3>2. Destino</h3>
+        <label>Dirección o referencia<input formControlName="endStreet" maxlength="255" placeholder="Calle, número y colonia"></label>
+        <div class="coordinates"><label>Latitud<input type="number" step="any" formControlName="endLat" min="-90" max="90"></label><label>Longitud<input type="number" step="any" formControlName="endLng" min="-180" max="180"></label></div>
+        <small>Usa coordenadas verificadas: la tarifa se calcula con ellas, no con el texto de la dirección.</small>
+        @if (form.invalid && form.touched) { <p class="error" role="alert">Completa todos los campos. Latitud: −90 a 90; longitud: −180 a 180.</p> }
+        <button mat-flat-button color="primary" type="submit" [disabled]="busy() || loading() || form.invalid"><mat-icon>hail</mat-icon> Crear solicitud</button>
+      </fieldset></form>
+    </section>
+    <section class="panel">
+      <h2><mat-icon>badge</mat-icon> Conductores <span class="count">{{ drivers()?.pagination?.totalElements ?? '—' }}</span></h2>
+      <form class="search" (ngSubmit)="searchDrivers()"><label>Buscar conductor<input name="driverSearch" [(ngModel)]="driverSearch" type="search" [disabled]="loading() || busy()"></label><button mat-stroked-button [disabled]="loading() || busy()">Buscar</button></form>
+      <p>Selecciona un disponible y después asigna una solicitud. El servidor valida vehículo y disponibilidad.</p>
+      @if (selectedDriver(); as driver) { <p class="notice success">Seleccionado: {{ driver.name }} {{ driver.lastname }}</p> }
+      <div class="scroll-list">@for (driver of drivers()?.result; track driver.id) {
+        <article class="driver-row" [class.selected]="selectedDriver()?.id === driver.id"><div><strong>{{ driver.name }} {{ driver.lastname }}</strong><small>#{{ driver.id }} · {{ driver.phone || 'Sin teléfono' }}</small><span class="badge" [class.available]="driver.status === 'AVAILABLE'">{{ label(driver.status) }}</span></div>
+          <button mat-stroked-button (click)="selectedDriver.set(driver)" [disabled]="driver.status !== 'AVAILABLE' || busy() || loading() || !!error()">Seleccionar</button></article>
+      } @empty { <p class="empty">{{ loading() ? 'Cargando…' : 'Sin conductores en esta página.' }}</p> }</div>
+      <nav class="pager" aria-label="Páginas de conductores"><button mat-button (click)="changePage('driver', -1)" [disabled]="driverPage === 0 || loading() || busy()">Anterior</button><span>{{ driverPage + 1 }}</span><button mat-button (click)="changePage('driver', 1)" [disabled]="driverPage + 1 >= (drivers()?.pagination?.totalPages ?? 0) || loading() || busy()">Siguiente</button></nav>
+    </section>
+    <section class="panel queue">
+      <h2><mat-icon>pending_actions</mat-icon> Pendientes <span class="count">{{ requests()?.pagination?.totalElements ?? '—' }}</span></h2><p>Más antiguas primero. Asignar confirma el viaje para el conductor seleccionado.</p>
+      <div class="scroll-list">@for (request of requests()?.result; track request.id) {
+        <article class="request-card"><strong>Solicitud #{{ request.id }} · Cliente #{{ request.clientId }}</strong>
+          <p><b>Desde:</b> {{ request.startAddress.street || 'Sin calle' }} {{ request.startAddress.streetNumber }} {{ request.startAddress.city }}</p>
+          <p><b>Hasta:</b> {{ request.endAddress.street || 'Sin calle' }} {{ request.endAddress.streetNumber }} {{ request.endAddress.city }}</p>
+          <small>{{ request.distanceMeters / 1000 | number:'1.1-1' }} km · Tarifa estimada: {{ request.initialPrice | number:'1.2-2' }}</small>
+          <small>Creada: {{ utc(request.createdAt) | date:'short' }} · Vence: {{ request.expiresAt ? (utc(request.expiresAt) | date:'shortTime') : 'Sin información' }}</small>
+          <button mat-flat-button color="primary" (click)="assign(request)" [disabled]="!selectedDriver() || busy() || loading() || !!error() || expired(request)">{{ expired(request) ? 'Vigencia finalizada' : 'Asignar a ' + (selectedDriver()?.name || 'conductor seleccionado') }}</button>
+        </article>
+      } @empty { <p class="empty">{{ loading() ? 'Consultando…' : 'Sin solicitudes pendientes en esta página.' }}</p> }</div>
+      <nav class="pager" aria-label="Páginas de solicitudes"><button mat-button (click)="changePage('request', -1)" [disabled]="requestPage === 0 || loading() || busy()">Anterior</button><span>{{ requestPage + 1 }}</span><button mat-button (click)="changePage('request', 1)" [disabled]="requestPage + 1 >= (requests()?.pagination?.totalPages ?? 0) || loading() || busy()">Siguiente</button></nav>
+    </section>
+  </div>
+  <section class="panel trips-panel">
+    <div class="page-header"><div><h2><mat-icon>route</mat-icon> Seguimiento de viajes</h2><a routerLink="/trips">Abrir historial y detalles</a></div><label>Estado<select [(ngModel)]="tripState" (ngModelChange)="filterTrips()" [disabled]="loading() || busy()">@for (state of tripStates; track state) { <option [value]="state">{{ label(state) }}</option> }</select></label></div>
+    <div class="table-scroll"><table><thead><tr><th>Viaje</th><th>Conductor</th><th>Cliente</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      @for (trip of trips()?.result; track trip.id) { <tr><td>{{ trip.id }}</td><td>{{ trip.driver ? trip.driver.name + ' ' + trip.driver.lastname : '#' + trip.driverId }}</td><td>#{{ trip.clientId }}</td><td>{{ label(trip.state) }}</td><td>@if (trip.state !== 'COMPLETED' && trip.state !== 'CANCELLED') { <button mat-button color="warn" (click)="cancelTarget = trip; cancelReason = ''" [disabled]="busy() || loading() || !!error()">Cancelar…</button> }</td></tr> } @empty { <tr><td colspan="5">Sin viajes en este estado.</td></tr> }
+    </tbody></table></div>
+    <nav class="pager" aria-label="Páginas de viajes"><button mat-button (click)="changePage('trip', -1)" [disabled]="tripPage === 0 || loading() || busy()">Anterior</button><span>{{ tripPage + 1 }}</span><button mat-button (click)="changePage('trip', 1)" [disabled]="tripPage + 1 >= (trips()?.pagination?.totalPages ?? 0) || loading() || busy()">Siguiente</button></nav>
+    @if (cancelTarget; as trip) { <form class="cancel-box" (ngSubmit)="cancel()"><h3>Confirmar cancelación del viaje {{ trip.id }}</h3><p>Termina el viaje y queda registrada con tu usuario.</p><label>Motivo obligatorio<textarea name="reason" [(ngModel)]="cancelReason" maxlength="500" required [disabled]="busy()"></textarea></label><button mat-flat-button color="warn" [disabled]="busy() || !cancelReason.trim()">Confirmar cancelación</button> <button type="button" mat-button (click)="cancelTarget = null" [disabled]="busy()">Volver</button></form> }
+  </section>
+</main>

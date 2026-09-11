@@ -1,17 +1,17 @@
 
 export enum RequestStates {
     PENDING = "PENDING",
-    IN_PROGRESS = "IN_PROGRESS",
-    COMPLETED = "COMPLETED",
+    ACCEPTED = "ACCEPTED",
     CANCELLED = "CANCELLED",
+    EXPIRED = "EXPIRED",
     REJECTED = "REJECTED"
 }
 
 export enum RequestStatesLabel {
     PENDING = 'Pendiente',
-    IN_PROGRESS = 'En progreso',
-    COMPLETED = 'Completado',
+    ACCEPTED = 'Aceptada',
     CANCELLED = 'Cancelado',
+    EXPIRED = 'Expirada',
     REJECTED = 'Rechazado'
 }
 
@@ -20,12 +20,12 @@ export const requestStatesToLabel = (state: RequestStates): string => {
     switch (state) {
         case RequestStates.PENDING:
             return RequestStatesLabel.PENDING;
-        case RequestStates.IN_PROGRESS:
-            return RequestStatesLabel.IN_PROGRESS;
-        case RequestStates.COMPLETED:
-            return RequestStatesLabel.COMPLETED;
+        case RequestStates.ACCEPTED:
+            return RequestStatesLabel.ACCEPTED;
         case RequestStates.CANCELLED:
             return RequestStatesLabel.CANCELLED;
+        case RequestStates.EXPIRED:
+            return RequestStatesLabel.EXPIRED;
         case RequestStates.REJECTED:
             return RequestStatesLabel.REJECTED;
     }

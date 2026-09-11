@@ -15,7 +15,7 @@ import { environment } from '../../../../environments/environment';
 export class ClientsService extends PaginationServices {
 
   private readonly http: HttpClient = inject(HttpClient);
-  private readonly controller = environment.apiUrl + environment.apiVersion + '/client';
+  private readonly controller = environment.apiUrl + environment.apiVersion + '/admin/clients';
 
   getAllPaginated<Client>(paginationRequest: PaginationRequest): Observable<PaginatedResult<Client>> {
     const params = generatePaginationQuery(paginationRequest);

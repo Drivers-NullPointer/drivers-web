@@ -1,6 +1,6 @@
 
 export interface Color {
     id: number;
-    color: string;
+    name: string;
     hex: string;
 }

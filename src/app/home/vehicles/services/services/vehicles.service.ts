@@ -3,7 +3,7 @@ import { IPaginationServices } from '../../../../shared/pagination/interfaces/IP
 import { BehaviorSubject, map, Observable, single, Subject, tap } from 'rxjs';
 import { PaginationRequest } from '../../../../shared/pagination/model/pagination.request';
 import { PaginatedResult } from '../../../../shared/pagination/model/pagination.result';
-import { Vehicle } from '../../model/vehicle';
+import { SaveVehicle, Vehicle } from '../../model/vehicle';
 import { environment } from '../../../../../environments/environment';
 import { generatePaginationQuery } from '../../../../utils/query-pagination/generate-pagination-query';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -18,7 +18,7 @@ import { PaginationServices } from '../../../../shared/pagination/interfaces/Pag
 export class VehiclesService extends PaginationServices {
   private readonly http = inject(HttpClient);
 
-  private readonly controller = environment.apiUrl + environment.apiVersion + '/vehicles';
+  private readonly controller = environment.apiUrl + environment.apiVersion + '/admin/vehicles';
 
   getAllPaginated<Vehicle>(paginationRequest: PaginationRequest): Observable<PaginatedResult<Vehicle>> {
     const params = generatePaginationQuery(paginationRequest);
@@ -26,42 +26,26 @@ export class VehiclesService extends PaginationServices {
   }
 
 
-  getListMake(paginationRequest: PaginationRequest): Observable<Make[]> {
-    const params = generatePaginationQuery(paginationRequest);
-    return this.http.get<PaginatedResult<Make>>(
-      `${this.controller}/catalog/makes`, { params }
-    ).pipe(
-      map((result: PaginatedResult<Make>) => result.result)
-    );
+  getListMake(): Observable<Make[]> {
+    return this.http.get<Make[]>(`${this.controller}/catalog/makes`);
   }
 
-  getListModel(make: string, paginationRequest: PaginationRequest): Observable<Model[]> {
-    const params = generatePaginationQuery(paginationRequest);
-    return this.http.get<PaginatedResult<Model>>(
-      `${this.controller}/catalog/makes/${make}/models`,
-      { params }
-    ).pipe(
-      map((result: PaginatedResult<Model>) => result.result)
-    );
+  getListModel(makeId: number): Observable<Model[]> {
+    return this.http.get<Model[]>(`${this.controller}/catalog/makes/${makeId}/models`);
   }
 
   getListColor(): Observable<Color[]> {
     return this.http.get<Color[]>(`${this.controller}/catalog/colors`);
   }
 
-  create(result: Vehicle) {
+  create(result: SaveVehicle) {
     return this.http.post<Vehicle>(this.controller, result).pipe(
       tap(() => this.notifyChange())
     );
   }
 
-  delete(id: number) {
-    return this.http.delete(`${this.controller}/${id}`).pipe(
-      tap(() => this.notifyChange())
-    );
-  }
-  update(id: number, result: Vehicle) {
-    return this.http.patch<Vehicle>(`${this.controller}/${id}`, result).pipe(
+  update(id: number, result: SaveVehicle) {
+    return this.http.put<Vehicle>(`${this.controller}/${id}`, result).pipe(
       tap(() => this.notifyChange())
     );
   }

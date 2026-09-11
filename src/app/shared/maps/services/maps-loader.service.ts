@@ -12,8 +12,8 @@ export class MapsLoaderService {
 
 
   public async load() {
-    const apiKey = await this.keystoreService.getMapsKey();
-    const url = `http://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=__onGoogleLoaded`;
+    const apiKey = (await this.keystoreService.getMapsKey()).trim();
+    const url = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=__onGoogleLoaded&loading=async`;
     if (!this.promise) {
       this.promise = new Promise(resolve => {
 

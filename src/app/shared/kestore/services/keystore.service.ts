@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { KeyResponse } from '../models/key.response';
+import { MapsConfigurationResponse } from '../models/key.response';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +10,16 @@ import { KeyResponse } from '../models/key.response';
 export class KeystoreService {
   readonly http = inject(HttpClient);
 
-  private readonly controller = environment.apiUrl + environment.apiVersion + '/keystore';
+  private readonly controller = environment.apiUrl + environment.apiVersion + '/public-config/maps';
 
   private _mapsKey?: string;
   private _mapId?: string;
+  private configurationPromise?: Promise<MapsConfigurationResponse>;
+
+  private getConfiguration(): Promise<MapsConfigurationResponse> {
+    this.configurationPromise ??= firstValueFrom(this.http.get<MapsConfigurationResponse>(this.controller));
+    return this.configurationPromise;
+  }
 
 
   async getMapsKey() {
@@ -21,8 +27,8 @@ export class KeystoreService {
     if (this._mapsKey) return this._mapsKey;
 
     try {
-      const key = await firstValueFrom(this.http.get<KeyResponse>(`${this.controller}/maps`));
-      this._mapsKey = key.key;
+      const configuration = await this.getConfiguration();
+      this._mapsKey = configuration.apiKey.trim();
       return this._mapsKey;
     } catch (error) {
       throw error;
@@ -33,8 +39,8 @@ export class KeystoreService {
     if (this._mapId) return this._mapId;
 
     try {
-      const key = await firstValueFrom(this.http.get<KeyResponse>(`${this.controller}/mapId`));
-      this._mapId = key.key;
+      const configuration = await this.getConfiguration();
+      this._mapId = configuration.mapId.trim();
       return this._mapId;
     } catch (error) {
       throw error;

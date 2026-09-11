@@ -1,3 +1,14 @@
+<section class="map-page" [class.embedded]="embedded()">
+  @if (!embedded()) {
+  <header class="map-header">
+    <div class="map-title"><span><mat-icon>location_on</mat-icon></span><div><p>COBERTURA OPERATIVA</p><h1>Mapa</h1><small>Visualiza ubicaciones y recorridos asociados a la operación.</small></div></div>
+    <div class="live-badge"><i></i> Vista operativa</div>
+  </header>
+  }
+  <div class="map-frame">
+    @if (!embedded()) {
+    <div class="map-overlay"><mat-icon>info</mat-icon><span><strong>Ciudad de México</strong><small>Usa el zoom y arrastra para explorar la zona.</small></span></div>
+    }
 <div class="container-maps">
     @if(mapReady()){
     @if(options()){
@@ -8,9 +19,11 @@
             }
         </google-map>
     }@else{
-        <h1>Error loading map</h1>
+        <div class="map-state"><mat-icon>map</mat-icon><h2>No se pudo cargar el mapa</h2><p>Verifica la configuración de Google Maps.</p></div>
     }
 }@else{
     <mat-spinner></mat-spinner>
 }
 </div>
+  </div>
+</section>

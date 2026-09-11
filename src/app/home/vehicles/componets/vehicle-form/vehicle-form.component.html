@@ -1,5 +1,7 @@
 <form [formGroup]="vehicleForm" (ngSubmit)="save()">
-    <h1 mat-dialog-title class="centered-text">
+    <div mat-dialog-title class="dialog-heading">
+      <span class="dialog-icon"><mat-icon>{{ action === DialogAction.OBSERVE ? 'local_taxi' : 'add_road' }}</mat-icon></span>
+      <div><p>{{ action === DialogAction.OBSERVE ? 'FICHA DE LA UNIDAD' : 'GESTIÓN DE FLOTA' }}</p><h1>
         @switch (this.action) {
         @case (DialogAction.CREATE) {
         Alta de Vehículo
@@ -11,14 +13,17 @@
         Detalle de Vehículo
         }
         }
-    </h1>
+      </h1><small>{{ action === DialogAction.CREATE ? 'Registra una nueva unidad en la flota.' : action === DialogAction.EDIT ? 'Actualiza la información de la unidad.' : 'Consulta las características registradas.' }}</small></div>
+    </div>
     <mat-dialog-content class="mat-typography">
+        <div class="section-label"><mat-icon>directions_car</mat-icon><span><strong>Identificación del vehículo</strong><small>Catálogo, placas y características</small></span></div>
         <div class="grid-form-driver">
             <app-simple-input [control]="vehicleForm.controls.make" [label]="'Marca'" [name]="'make'"
-                [isRequired]="true" [maxLength]="50" [options]="makeOptions()" />
+                [isRequired]="true" [maxLength]="50" [options]="makeOptions()" [validators]="makeErrors" />
 
             <app-simple-input [control]="vehicleForm.controls.model" [label]="'Modelo'" [name]="'model'"
-                [isRequired]="true" [maxLength]="50" [options]="modelOptions()" />
+                [isRequired]="true" [maxLength]="50" [options]="modelOptions()" [validators]="modelErrors"
+                [isEnable]="isModelEnabled()" [placeholder]="isModelEnabled() ? 'Selecciona un modelo' : 'Selecciona primero una marca'" />
 
             <app-options-input [control]="vehicleForm.controls.color" [label]="'Color'" [options]="colors()"
                 [itemTemplate]="itemTemplate" />
@@ -26,17 +31,27 @@
 
             <mat-form-field>
                 <mat-label>Placas</mat-label>
-                <input matInput formControlName="plates" name="plates" maxlength="20">
+                <input matInput formControlName="plates" name="plates" maxlength="20" placeholder="ABC-123-D" autocomplete="off">
+                <mat-hint>Entre 5 y 20 caracteres</mat-hint>
+                @if (vehicleForm.controls.plates.touched && vehicleForm.controls.plates.invalid) { <mat-error>Ingresa unas placas válidas.</mat-error> }
             </mat-form-field>
             <mat-form-field>
-                <mat-label>Número</mat-label>
-                <input matInput formControlName="number" name="number" maxlength="20">
+                <mat-label>Número económico</mat-label>
+                <input matInput type="number" formControlName="number" name="number" placeholder="104" min="1">
+                <mat-hint>Identificador interno de la unidad</mat-hint>
+                @if (vehicleForm.controls.number.touched && vehicleForm.controls.number.invalid) { <mat-error>Ingresa un número mayor a cero.</mat-error> }
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Año</mat-label>
+                <input matInput type="number" formControlName="year" name="year" min="1980" max="2100">
+                <mat-hint>Entre 1980 y 2100</mat-hint>
+                @if (vehicleForm.controls.year.touched && vehicleForm.controls.year.invalid) { <mat-error>Ingresa un año entre 1980 y 2100.</mat-error> }
             </mat-form-field>
 
             <div class="flex-column container-rotulated">
-                <mat-label>Esta rotulado</mat-label>
+                <mat-label>¿La unidad está rotulada?</mat-label>
                 <mat-radio-group formControlName="isRotulated">
-                    <mat-radio-button [value]="true">Si</mat-radio-button>
+                    <mat-radio-button [value]="true">Sí</mat-radio-button>
                     <mat-radio-button [value]="false">No</mat-radio-button>
                 </mat-radio-group>
             </div>
@@ -44,9 +59,11 @@
 
         </div>
     </mat-dialog-content>
-    <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Cancel</button>
-        <button mat-button type="submit">Save</button>
+    <mat-dialog-actions align="end" class="dialog-actions">
+        <button mat-button mat-dialog-close>{{ action === DialogAction.OBSERVE ? 'Cerrar' : 'Cancelar' }}</button>
+        @if (action !== DialogAction.OBSERVE) {
+          <button mat-flat-button class="primary-action" type="submit" [disabled]="vehicleForm.invalid"><mat-icon>save</mat-icon>{{ action === DialogAction.CREATE ? 'Registrar vehículo' : 'Guardar cambios' }}</button>
+        }
     </mat-dialog-actions>
 </form>
 

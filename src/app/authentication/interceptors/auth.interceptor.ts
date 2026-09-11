@@ -15,7 +15,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn):
 
     return next(req).pipe(
         catchError((error) => {
-            if (error.status === 401 && token && (!req.url.includes('refresh') || !req.url.includes('login'))) {
+            if (error.status === 401 && token && !req.url.includes('refresh') && !req.url.includes('login')) {
                 return authService.refreshToken().pipe(
                     switchMap(() => {
                         req = signingRequestInterceptor(req, tokenServices.getAccessToken());

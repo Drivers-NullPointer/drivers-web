@@ -4,6 +4,11 @@ import { canActivateGuardLogin } from './authentication/guard/login.guard';
 
 export const routes: Routes = [
     {
+        path: 'auth/confirm-delete-account',
+        data: { confirmDeletion: true },
+        loadComponent: () => import('./authentication/delete-account/delete-account.component').then(m => m.DeleteAccountComponent),
+    },
+    {
         path: 'delete-account',
         loadComponent: () => import('./authentication/delete-account/delete-account.component').then(m => m.DeleteAccountComponent),
     },
@@ -50,8 +55,16 @@ export const routes: Routes = [
 export const homeRoutes: Routes = [
     {
         path: '',
-        redirectTo: 'drivers',
+        redirectTo: 'dispatch',
         pathMatch: 'full'
+    },
+    {
+        path: 'dispatch',
+        loadComponent: () => import('./home/dispatch/dispatch.component').then(m => m.DispatchComponent),
+    },
+    {
+        path: 'overview',
+        loadComponent: () => import('./home/overview/overview.component').then(m => m.OverviewComponent),
     },
     {
         path: 'drivers',

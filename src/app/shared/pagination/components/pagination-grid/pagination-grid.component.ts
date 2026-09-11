@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, computed, effect, inject, Injector, input, Input, model, OnDestroy, OnInit, runInInjectionContext, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, Injector, input, Input, model, OnInit, runInInjectionContext, signal, ViewChild } from '@angular/core';
 import { IPaginationServices } from '../../interfaces/IPaginationServices';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule, SortDirection } from '@angular/material/sort';
@@ -8,7 +8,7 @@ import { of as observableOf } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { ColumnName } from '../../model/column.name';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PaginatedResult } from '../../model/pagination.result';
 import { PaginationRequest } from '../../model/pagination.request';
 import { GeneralActions, PaginationActions } from '../../model/pagination.actions';
@@ -35,6 +35,7 @@ import { CustomTransformPipe } from '../../../pipes/transform.pipe';
 export class PaginationGridComponent implements OnInit {
 
   injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -57,6 +58,7 @@ export class PaginationGridComponent implements OnInit {
 
 
   private isFirstLoading = signal(true);
+  private loadSubscription?: Subscription;
 
 
   displayedColumns = computed(() => {
@@ -108,10 +110,16 @@ export class PaginationGridComponent implements OnInit {
   }
 
   private loadData(): void {
+    // Cancela una petición anterior si el usuario cambia rápidamente de
+    // página, orden o búsqueda. switchMap no vive aquí porque estos eventos
+    // también llegan desde MatPaginator y MatSort.
+    this.loadSubscription?.unsubscribe();
+
     if (this.isFirstLoading()) {
       this.isLoading.set(true);
     }
-    this.paginationServices.getAllPaginated(this.calculatePageInfo()).pipe(
+    this.loadSubscription = this.paginationServices.getAllPaginated(this.calculatePageInfo()).pipe(
+      takeUntilDestroyed(this.destroyRef),
       catchError(() => observableOf(null)),
       map(data => {
         if (this.isFirstLoading()) {
@@ -132,7 +140,7 @@ export class PaginationGridComponent implements OnInit {
 
   private calculatePageInfo(): PaginationRequest {
     return {
-      page: this.paginator.pageIndex + 1,
+      page: this.paginator.pageIndex,
       limit: this.paginator.pageSize,
       sort: this.sort.active,
       order: this.sort.direction as SortDirection,
@@ -148,9 +156,9 @@ export class PaginationGridComponent implements OnInit {
   }
 
   private calculateNewPageInfo(data: PaginatedResult<unknown>): void {
-    this._totalItems.set(data.pagination.totalItems);
-    this._pageSize.set(data.pagination.pageSize);
-    this._currentPage.set(data.pagination.currentPage - 1);
+    this._totalItems.set(data.pagination.totalElements);
+    this._pageSize.set(data.pagination.limit);
+    this._currentPage.set(data.pagination.page);
     this._totalPages.set(data.pagination.totalPages);
   }
 

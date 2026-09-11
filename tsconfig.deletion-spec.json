@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "include": [
+    "src/app/authentication/delete-account/**/*.spec.ts",
+    "src/app/home/drivers/deletion.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}

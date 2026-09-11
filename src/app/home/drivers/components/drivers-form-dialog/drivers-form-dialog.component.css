@@ -18,3 +18,13 @@
         grid-template-columns: 1fr;
     }
 }
+
+.dialog-heading { display: flex; align-items: center; gap: 14px; padding: 22px 24px 12px !important; }
+.dialog-heading h1 { margin: 2px 0 3px; font-size: 23px; letter-spacing: -.025em; }
+.dialog-heading p { margin: 0; color: #b45309; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.dialog-heading small { color: #64748b; font-size: 13px; }
+.dialog-icon { display: grid; place-items: center; width: 46px; height: 46px; flex: 0 0 46px; border-radius: 14px; color: #92400e; background: #fef3c7; }
+.section-label { display: flex; align-items: center; gap: 10px; margin: 6px 0 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; color: #475569; }
+.section-label mat-icon { color: #b45309; }.section-label small { display: block; margin-top: 2px; color: #94a3b8; }
+.dialog-actions { padding: 14px 24px 22px; border-top: 1px solid #eef2f7; }
+.primary-action { --mdc-filled-button-container-color: #fbbf24; --mdc-filled-button-label-text-color: #172033; font-weight: 700; }

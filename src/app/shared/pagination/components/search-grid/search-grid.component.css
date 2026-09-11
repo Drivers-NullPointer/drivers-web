@@ -13,6 +13,6 @@ button{
 }
 
 .search-form{
-    width: 350px;
+    width: min(390px, 100%);
     margin-bottom: -1.25em;
 }

@@ -1,13 +1,18 @@
-<div class="container-pagination-search" [ngClass]="{'center-content': isLoading()}">
-  @if (isLoading()) {
-  <mat-spinner></mat-spinner>
-  }
-  <div class="container-pagination" [ngClass]="{'hidden': isLoading()}">
-    <!--this fix the error overlap icon, maybe is for the animation input-->
-    <app-search-grid [(search)]="search" *ngIf="!isLoading()" />
-    <app-pagination-actions [generalActions]="generalActions" class="align-right" />
+<div class="container-pagination-search">
+  <div class="container-pagination">
+    <header class="module-header">
+      <div class="module-heading">
+        <span class="module-icon"><mat-icon>{{ icon }}</mat-icon></span>
+        <div><p>GESTIÓN ADMINISTRATIVA</p><h1>{{ title }}</h1><span>{{ subtitle }}</span></div>
+      </div>
+      <app-pagination-actions [generalActions]="generalActions" />
+    </header>
+    <div class="table-toolbar">
+      <app-search-grid [(search)]="search" />
+      <span class="search-hint"><mat-icon>info</mat-icon> Busca por nombre, identificador o dato relacionado</span>
+    </div>
     <app-pagination-grid [paginationServices]="paginationServices" [tableColumns]="tableColumns"
-      [description]="'Lista de Conductores registrados'" [search]="search" [paginationActions]="paginationActions"
+      [description]="description" [search]="search" [paginationActions]="paginationActions"
       [(isLoading)]="isLoading" />
   </div>
 </div>

@@ -1,25 +1,19 @@
-<h2 mat-dialog-title class="centered-text">Detalles de la solicitud</h2>
+<div mat-dialog-title class="detail-heading"><span><mat-icon>hail</mat-icon></span><div><p>SOLICITUD #{{ requestTrip?.id }}</p><h2>Detalle de la solicitud</h2><small>Información de origen, destino y condiciones del servicio.</small></div></div>
 <mat-dialog-content>
   <div class="flex-row container-request-details">
-    <app-maps [listPoints]="listPoints()" class="container-maps"></app-maps>
+    <app-maps [listPoints]="listPoints()" [embedded]="true" class="container-maps"></app-maps>
     <div class="flex-column container-info">
-      <h2 class="centered-text">Información de la solicitud</h2>
-      <div class="flex-row info-row">
-        <p class="bold">Distancia lineal:</p>
-        <p>{{(requestTrip?.distance | distance) ?? 'Sin información'}}</p>
-      </div>
-      <div class="flex-row info-row">
-        <p class="bold">Punto de partida:</p>
-        <p>{{requestTrip?.startAddress?.fullAddress ?? 'Sin dirección'}}</p>
-      </div>
-      <div class="flex-row info-row">
-        <p class="bold">Punto de llegada:</p>
-        <p>{{requestTrip?.endAddress?.fullAddress ?? 'Sin dirección'}}</p>
+      <div class="status-line"><span>Estado</span><strong>{{ statusLabel(requestTrip?.state) }}</strong></div>
+      <div class="info-card"><mat-icon>trip_origin</mat-icon><div><small>ORIGEN</small><strong>{{ addressLabel(requestTrip?.startAddress) }}</strong></div></div>
+      <div class="route-line"></div>
+      <div class="info-card destination"><mat-icon>location_on</mat-icon><div><small>DESTINO</small><strong>{{ addressLabel(requestTrip?.endAddress) }}</strong></div></div>
+      <div class="metrics-grid">
+        <div><mat-icon>straighten</mat-icon><small>Distancia</small><strong>{{(requestTrip?.distanceMeters | distance) ?? 'Sin información'}}</strong></div>
+        <div><mat-icon>payments</mat-icon><small>Tarifa inicial</small><strong>{{ requestTrip?.initialPrice != null ? ('$' + requestTrip?.initialPrice) : 'Sin información' }}</strong></div>
+        <div><mat-icon>person</mat-icon><small>Cliente</small><strong>#{{ requestTrip?.clientId }}</strong></div>
+        <div><mat-icon>schedule</mat-icon><small>Solicitada</small><strong>{{ dateLabel(requestTrip?.createdAt) }}</strong></div>
       </div>
     </div>
   </div>
-
 </mat-dialog-content>
-<mat-dialog-actions [align]="'center'">
-  <button mat-flat-button mat-dialog-close cdkFocusInitial>Aceptar</button>
-</mat-dialog-actions>
+<mat-dialog-actions align="end" class="detail-actions"><button mat-flat-button class="primary-action" mat-dialog-close cdkFocusInitial>Listo</button></mat-dialog-actions>

@@ -7,34 +7,40 @@ export interface NavDestination {
 
 
 export const navDestinations: NavDestination[] = [
+    { label: 'Despacho', icon: 'support_agent', route: 'dispatch' },
     {
-        label: 'Drivers',
-        icon: 'directions_car',
+        label: 'Resumen',
+        icon: 'space_dashboard',
+        route: 'overview'
+    },
+    {
+        label: 'Conductores',
+        icon: 'badge',
         route: 'drivers'
     },
     {
-        label: 'Vehicles',
-        icon: 'local_shipping',
+        label: 'Vehículos',
+        icon: 'local_taxi',
         route: 'vehicles'
     },
     {
-        label: 'Clients',
+        label: 'Clientes',
         icon: 'people',
         route: 'clients'
     },
     {
-        label: 'Requests',
-        icon: 'map',
+        label: 'Solicitudes',
+        icon: 'hail',
         route: 'requests'
     },
     {
-        label: 'Trips',
-        icon: 'directions_bus',
+        label: 'Viajes',
+        icon: 'route',
         route: 'trips'
     },
     {
-        label: 'Maps',
-        icon: 'map',
+        label: 'Mapa',
+        icon: 'location_on',
         route: 'maps'
     },
 ];

@@ -1,8 +1,8 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DialogData } from '../../../drivers/model/dialog.data';
-import { Vehicle } from '../../model/vehicle';
+import { SaveVehicle, Vehicle } from '../../model/vehicle';
 import { DialogAction } from '../../../../shared/model/Dialog.action';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,6 +21,7 @@ import { SimpleInputComponent } from "../../../../shared/custom-inputs/simple-in
 import { AutoCompleteValue } from '../../../../shared/model/AutoCompleteValue';
 import { OptionsInputComponent } from "../../../../shared/custom-inputs/options-input/options-input.component";
 import { DropDownOption } from '../../../../shared/model/DropDownOption';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-vehicle-form',
@@ -36,7 +37,8 @@ import { DropDownOption } from '../../../../shared/model/DropDownOption';
     MatAutocompleteModule,
     MatSelectModule,
     SimpleInputComponent,
-    OptionsInputComponent
+    OptionsInputComponent,
+    MatIconModule
   ],
   templateUrl: './vehicle-form.component.html',
   styleUrl: './vehicle-form.component.css'
@@ -57,17 +59,21 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   private modelSubscribe?: Subscription;
 
   readonly vehicleForm = new FormGroup({
-    make: new FormControl(this.vehicle?.make, [Validators.required]),
-    model: new FormControl(this.vehicle?.model, [Validators.required]),
-    color: new FormControl(this.vehicle?.color, [Validators.required]),
-    plates: new FormControl(this.vehicle?.plates, [Validators.required]),
-    number: new FormControl(this.vehicle?.number, [Validators.required]),
+    make: new FormControl<AutoCompleteValue | string>(this.vehicle ? { id: this.vehicle.makeId, value: this.vehicle.make } : '', [Validators.required, this.catalogSelection]),
+    model: new FormControl<AutoCompleteValue | string>(this.vehicle ? { id: this.vehicle.modelId, value: this.vehicle.model } : '', [Validators.required, this.catalogSelection]),
+    color: new FormControl<number | null>(this.vehicle?.colorId ?? null, [Validators.required]),
+    plates: new FormControl(this.vehicle?.plates, [Validators.required, Validators.minLength(5), Validators.maxLength(20)]),
+    number: new FormControl(this.vehicle?.number, [Validators.required, Validators.min(1)]),
+    year: new FormControl(this.vehicle?.year, [Validators.required, Validators.min(1980), Validators.max(2100)]),
     isRotulated: new FormControl(this.vehicle?.isRotulated, [Validators.required])
   });
 
   readonly makeOptions = signal<AutoCompleteValue[]>([])
   readonly modelOptions = signal<AutoCompleteValue[]>([])
   readonly colors = signal<DropDownOption[]>([])
+  readonly isModelEnabled = signal(!!this.vehicle);
+  readonly makeErrors = [{ type: 'required', message: 'Selecciona una marca.' }, { type: 'catalogSelection', message: 'Selecciona una opción del catálogo.' }];
+  readonly modelErrors = [{ type: 'required', message: 'Selecciona primero una marca y después un modelo.' }, { type: 'catalogSelection', message: 'Selecciona una opción del catálogo.' }];
 
 
 
@@ -79,42 +85,25 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     }
 
     this.loadColors();
+    this.vehicleService.getListMake().subscribe({
+      next: makes => this.makeOptions.set(makes.map(make => ({ id: make.id, value: make.name })))
+    });
+
     this.makeSubscribe = this.vehicleForm.controls.make.valueChanges
       .pipe(
         debounceTime(500),
         distinctUntilChanged(),
-        filter((value): value is string => !!value && typeof value === 'string' && value.length > 0)
+        filter((value): value is AutoCompleteValue => !!value && typeof value === 'object')
       )
       .subscribe((value) => {
         if (value) {
-          const request = this.getPaginationRequest(value);
-          this.vehicleService.getListMake(request).subscribe({
-            next: makes => {
-              const map = makes.map(make => <AutoCompleteValue>{
-                id: make.id,
-                value: make.make
-              });
-              this.makeOptions.set(map);
-            }
-          });
-        }
-      });
-
-    this.modelSubscribe = this.vehicleForm.controls.model.valueChanges
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        filter((value): value is string => !!value && typeof value === 'string' && value.length > 0)
-      )
-      .subscribe((value) => {
-        if (value) {
-          const make = this.vehicleForm.controls.make.value ?? '';
-          const request = this.getPaginationRequest(value);
-          this.vehicleService.getListModel(make, request).subscribe({
+          this.isModelEnabled.set(true);
+          this.vehicleForm.controls.model.setValue('');
+          this.vehicleService.getListModel(Number(value.id)).subscribe({
             next: models => {
               const map = models.map(model => <AutoCompleteValue>{
                 id: model.id,
-                value: model.model
+                value: model.name
               });
               this.modelOptions.set(map);
             }
@@ -128,7 +117,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       next: colors => {
         const map = colors.map(color => <DropDownOption>{
           id: color.id,
-          value: color.color,
+          value: color.name,
           data: color
         });
         this.colors.set(map);
@@ -137,10 +126,23 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   }
 
   save() {
+    this.vehicleForm.markAllAsTouched();
     if (this.vehicleForm.valid) {
-      const vehicleFrom = <Vehicle>this.vehicleForm.value;
+      const model = this.vehicleForm.controls.model.value;
+      const vehicleFrom: SaveVehicle = {
+        number: Number(this.vehicleForm.controls.number.value),
+        plates: this.vehicleForm.controls.plates.value!,
+        isRotulated: this.vehicleForm.controls.isRotulated.value!,
+        year: Number(this.vehicleForm.controls.year.value),
+        modelId: Number(model && typeof model === 'object' ? model.id : this.vehicle?.modelId),
+        colorId: Number(this.vehicleForm.controls.color.value)
+      };
       this.dialogRef.close(vehicleFrom);
     }
+  }
+
+  private catalogSelection(control: AbstractControl): ValidationErrors | null {
+    return control.value && typeof control.value === 'object' ? null : { catalogSelection: true };
   }
 
   private getPaginationRequest(

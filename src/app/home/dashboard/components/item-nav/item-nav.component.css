@@ -1,4 +1,12 @@
 .active-link {
-  font-weight: bold;
-  background-color: #ffd943;
+  font-weight: 700;
+  color: #92400e;
+  background-color: #fef3c7;
+}
+
+mat-nav-list { padding: 2px 0; }
+
+a[mat-list-item] {
+  border-radius: 10px;
+  color: #475569;
 }

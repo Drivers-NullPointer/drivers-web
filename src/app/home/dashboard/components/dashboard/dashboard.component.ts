@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { NavDestination, navDestinations } from '../../model/NavDestinations';
@@ -20,8 +20,13 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+  @ViewChild('drawer') drawer?: import('@angular/material/sidenav').MatDrawer;
 
   listDestinations: NavDestination[] = navDestinations
 
   constructor() { }
+
+  toggleMenu(): void {
+    this.drawer?.toggle();
+  }
 }

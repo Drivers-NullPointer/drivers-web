@@ -9,6 +9,8 @@ import { DialogAction } from '../../shared/model/Dialog.action';
 import { DriversFormDialogComponent } from './components/drivers-form-dialog/drivers-form-dialog.component';
 import { ToastService } from '../../shared/toast/toast.service';
 import { DriverStatus } from './model/driver.status';
+import { DeleteDriverDialogComponent } from './components/delete-driver-dialog.component';
+import { EMPTY, finalize, switchMap, take } from 'rxjs';
 
 @Component({
   selector: 'app-drivers',
@@ -22,6 +24,7 @@ export class DriversComponent {
   private readonly dialog = inject(MatDialog);
   private readonly toast = inject(ToastService);
   readonly driversService = inject(DriversService);
+  private readonly deletingDrivers = new Set<number>();
 
   readonly driverColumns: ColumnName[] = [
     { displayName: 'Id', key: 'id', isSortable: true },
@@ -44,7 +47,7 @@ export class DriversComponent {
       name: 'Eliminar',
       icon: 'delete',
       description: 'Eliminar conductor',
-      action: (data: any) => this.deleteDriver(data.id)
+      action: (data: Driver) => this.deleteDriver(data)
     },
     {
       name: 'Ver',
@@ -55,14 +58,7 @@ export class DriversComponent {
   ];
 
 
-  readonly generalActions = [
-    {
-      name: 'Agregar',
-      icon: 'add',
-      description: 'Agregar conductor',
-      action: () => this.showDriverForm(DialogAction.CREATE)
-    }
-  ];
+  readonly generalActions = [];
 
 
   showDriverForm(action: DialogAction, driver?: Driver) {
@@ -93,9 +89,15 @@ export class DriversComponent {
     }
   }
 
-  private deleteDriver(id: number) {
-    console.log('Eliminando conductor con id:', id);
-    this.driversService.deleteDriver(id).subscribe({
+  private deleteDriver(driver: Driver) {
+    if (this.deletingDrivers.has(driver.id)) return;
+    this.deletingDrivers.add(driver.id);
+    this.dialog.open(DeleteDriverDialogComponent, { data: driver, width: '440px' })
+      .afterClosed().pipe(
+        take(1),
+        switchMap(confirmed => confirmed === true ? this.driversService.deleteDriver(driver.id) : EMPTY),
+        finalize(() => this.deletingDrivers.delete(driver.id))
+      ).subscribe({
       next: () => this.toast.showSuccessMessage({
         title: 'Conductor eliminado', message: 'Se ha eliminado el conductor'
       }),

@@ -1,5 +1,5 @@
 .container-pagination-search{
-    padding: 40px;
+    padding: 32px;
     box-sizing: border-box;
     height: 100%;
     width: 100%;
@@ -14,8 +14,21 @@
 .container-pagination{
     flex-direction: column;
     display: flex;
-    gap: 10px;
+    gap: 18px;
+    max-width: 1500px;
+    margin: 0 auto;
 }
+
+.module-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 6px; }
+.module-heading { display: flex; align-items: center; gap: 16px; }
+.module-icon { display: grid; place-items: center; width: 54px; height: 54px; flex: 0 0 54px; border-radius: 16px; color: #92400e; background: #fef3c7; }
+.module-icon mat-icon { width: 28px; height: 28px; font-size: 28px; }
+.module-heading p { margin: 0 0 4px; color: #b45309; font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.module-heading h1 { margin: 0; color: #172033; font-size: clamp(25px, 3vw, 34px); letter-spacing: -.035em; }
+.module-heading span { display: block; margin-top: 5px; color: #64748b; font-size: 14px; }
+.table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; }
+.search-hint { display: flex; align-items: center; gap: 7px; color: #94a3b8; font-size: 12px; }
+.search-hint mat-icon { width: 17px; height: 17px; font-size: 17px; }
 
 .hidden{
     display: none;
@@ -23,4 +36,10 @@
 
 .align-right{
     align-self: flex-end;
+}
+
+@media (max-width: 700px) {
+  .container-pagination-search { padding: 18px 12px; overflow: auto; }
+  .module-header, .table-toolbar { align-items: stretch; flex-direction: column; }
+  .search-hint { display: none; }
 }

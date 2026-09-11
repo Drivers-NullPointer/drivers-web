@@ -1,6 +1,6 @@
 import { Component, inject, input, model, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { CreateDriverDto, Driver, UpdateDriverDto } from '../../model/driver.types';
+import { Driver, UpdateDriverDto } from '../../model/driver.types';
 import { DialogData } from '../../model/dialog.data';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -104,12 +104,6 @@ export class DriversFormDialogComponent {
     }
 
 
-    if (this.action === DialogAction.CREATE) {
-      const createDriverDto = this.getCreateDriverDto();
-      this.createDriver(createDriverDto);
-      return;
-    }
-
     if (this.action === DialogAction.EDIT) {
       const updateDriverDto = this.getCreateDriverDto();
       this.updateDriver(this.drive!.id, updateDriverDto);
@@ -120,7 +114,7 @@ export class DriversFormDialogComponent {
 
 
 
-  private getCreateDriverDto(): CreateDriverDto {
+  private getCreateDriverDto(): UpdateDriverDto {
     const birthdateValue = this.formDriver.controls.birthdate.value!;
     const birthdate = new Date(birthdateValue).toISOString()
     return {
@@ -150,30 +144,6 @@ export class DriversFormDialogComponent {
     }
   }
 
-
-  private createDriver(
-    createDriverDto: CreateDriverDto
-  ): void {
-    this.isLoading.set(true);
-    this.driverServices.createDriver(createDriverDto).subscribe({
-      next: () => {
-        this.toast.showSuccessMessage({
-          title: 'Conductor creado',
-          message: 'Se ha creado el conductor'
-        });
-        this.dialogRef.close(true);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        const errorMessage = this.getErrorMessage(error.message, 'No se ha podido crear el conductor')
-        this.toast.showErrorMessage({
-          title: "Error al crear conductor",
-          message: errorMessage
-        })
-        this.isLoading.set(false);
-      }
-    })
-  }
 
   private updateDriver(
     id: number,

@@ -1,0 +1,6 @@
+.container-actions button {
+  --mdc-protected-button-container-color: #fbbf24;
+  --mdc-protected-button-label-text-color: #172033;
+  border-radius: 10px;
+  font-weight: 700;
+}

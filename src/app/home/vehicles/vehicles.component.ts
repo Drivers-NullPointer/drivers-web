@@ -4,7 +4,7 @@ import { ColumnName } from '../../shared/pagination/model/column.name';
 import { GeneralActions, PaginationActions } from '../../shared/pagination/model/pagination.actions';
 import { PaginationComponent } from "../../shared/pagination/components/pagination/pagination.component";
 import { DialogAction } from '../../shared/model/Dialog.action';
-import { Vehicle } from './model/vehicle';
+import { SaveVehicle, Vehicle } from './model/vehicle';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../shared/toast/toast.service';
 import { VehicleFormComponent } from './componets/vehicle-form/vehicle-form.component';
@@ -38,12 +38,6 @@ export class VehiclesComponent {
       icon: 'edit',
       description: 'Editar vehículo',
       action: (data: any) => this.actionVehicle(DialogAction.EDIT, data)
-    },
-    {
-      name: 'Eliminar',
-      icon: 'delete',
-      description: 'Eliminar vehículo',
-      action: (data: any) => this.deleteVehicle(data.id)
     },
     {
       name: 'Ver',
@@ -80,11 +74,11 @@ export class VehiclesComponent {
     });
 
     response.afterClosed().subscribe({
-      next: (result?: Vehicle) => this.OnCloseDialog(dialogAction, result, vehicle?.id),
+      next: (result?: SaveVehicle) => this.OnCloseDialog(dialogAction, result, vehicle?.id),
     });
   }
 
-  private createVehicle(result: Vehicle) {
+  private createVehicle(result: SaveVehicle) {
     this.vehiclesService.create(result).subscribe({
       next: () => this.toast.showSuccess("Exito", "Vehículo creado correctamente"),
       error: (error) => {
@@ -94,17 +88,7 @@ export class VehiclesComponent {
     });
   }
 
-  private deleteVehicle(id: number) {
-    this.vehiclesService.delete(id).subscribe({
-      next: () => this.toast.showSuccess("Exito", "Vehículo eliminado correctamente"),
-      error: (error) => {
-        this.toast.showError("Error", "Error al eliminar el vehículo")
-
-      }
-    });
-  }
-
-  private updateVehicle(id: number, result: Vehicle) {
+  private updateVehicle(id: number, result: SaveVehicle) {
     this.vehiclesService.update(id, result).subscribe({
       next: () => this.toast.showSuccess("Exito", "Vehículo actualizado correctamente"),
       error: (error) => {
@@ -113,7 +97,7 @@ export class VehiclesComponent {
     });
   }
 
-  OnCloseDialog(dialogAction: DialogAction, result?: Vehicle, id?: number): void {
+  OnCloseDialog(dialogAction: DialogAction, result?: SaveVehicle, id?: number): void {
     if (!result) return;
 
     switch (dialogAction) {

@@ -1,5 +1,6 @@
 export interface Model {
     id: number;
-    model: string;
+    makeId: number;
+    name: string;
 
 }

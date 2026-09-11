@@ -3,7 +3,9 @@
         <app-center-progress/>
     }
     <form [formGroup]="formDriver" (ngSubmit)="save()">
-        <h1 mat-dialog-title class="centered-text">
+        <div mat-dialog-title class="dialog-heading">
+          <span class="dialog-icon"><mat-icon>{{ action === DialogAction.OBSERVE ? 'badge' : 'edit_note' }}</mat-icon></span>
+          <div><p>{{ action === DialogAction.OBSERVE ? 'PERFIL OPERATIVO' : 'DATOS DEL CONDUCTOR' }}</p><h1>
             @switch (this.action) {
             @case (DialogAction.CREATE) {
             Alta de Conductor
@@ -15,8 +17,10 @@
             Detalle de Conductor
             }
             }
-        </h1>
+          </h1><small>{{ action === DialogAction.OBSERVE ? 'Consulta la información registrada.' : 'Completa los campos obligatorios para continuar.' }}</small></div>
+        </div>
         <mat-dialog-content class="mat-typography">
+            <div class="section-label"><mat-icon>person</mat-icon><span><strong>Información personal</strong><small>Identidad y datos de contacto</small></span></div>
             <div class="grid-form-driver">
                 <app-select-profile-picture 
                     [photoData]="photoData()"
@@ -80,16 +84,18 @@
             
             </div>
         </mat-dialog-content>
-        <mat-dialog-actions align="end">
+        <mat-dialog-actions align="end" class="dialog-actions">
             <button 
             mat-button 
             mat-dialog-close
             [disabled]="this.isLoading()"
-            >Cancel</button>
+            >{{ action === DialogAction.OBSERVE ? 'Cerrar' : 'Cancelar' }}</button>
+            @if (action !== DialogAction.OBSERVE) {
             <button 
-            mat-button
+            mat-flat-button class="primary-action"
              type="submit"
-             >Save</button>
+             ><mat-icon>save</mat-icon>Guardar cambios</button>
+            }
         </mat-dialog-actions>
     </form>
 </div>

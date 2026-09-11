@@ -27,9 +27,18 @@ export class TripDialogComponent {
   private readonly dialogData = inject<DialogData<Trip>>(MAT_DIALOG_DATA);
 
 
-  private trip = this.dialogData.data;
+  readonly trip = this.dialogData.data;
 
-  readonly polylineEncode = this.trip?.tracking ? this.trip.tracking : null;
+  readonly polylineEncode = this.trip?.route?.encodedPolyline ?? null;
+
+  statusLabel(state?: string): string {
+    const labels: Record<string, string> = { ASSIGNED: 'Asignado', DRIVER_EN_ROUTE: 'Conductor en camino', DRIVER_ARRIVED: 'Conductor en el punto', IN_PROGRESS: 'En curso', COMPLETED: 'Finalizado', CANCELLED: 'Cancelado' };
+    return state ? (labels[state] ?? state) : 'Sin estado';
+  }
+
+  dateLabel(value?: Date | string | null): string {
+    return value ? new Date(value).toLocaleString('es-MX') : 'Sin fecha';
+  }
 
 
 }

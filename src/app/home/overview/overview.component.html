@@ -1,0 +1,62 @@
+<main class="overview-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CENTRO DE OPERACIONES</p>
+      <h1>Resumen del servicio</h1>
+      <p>Estado actual de solicitudes, viajes y recursos disponibles.</p>
+    </div>
+    <button mat-stroked-button (click)="load()" [disabled]="isLoading()">
+      <mat-icon>refresh</mat-icon> Actualizar
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <div class="state"><mat-spinner diameter="42"/><span>Actualizando operación…</span></div>
+  } @else if (hasError()) {
+    <div class="state error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <strong>No se pudo consultar el resumen</strong>
+      <button mat-button (click)="load()">Reintentar</button>
+    </div>
+  } @else {
+    @if (dashboard(); as data) {
+    <section class="metric-grid">
+      <a routerLink="/requests" class="metric-card attention">
+        <span class="metric-icon"><mat-icon>hail</mat-icon></span>
+        <span><small>Solicitudes pendientes</small><strong>{{ data.pendingRequests }}</strong></span>
+        <mat-icon class="arrow">arrow_forward</mat-icon>
+      </a>
+      <a routerLink="/trips" class="metric-card active">
+        <span class="metric-icon"><mat-icon>route</mat-icon></span>
+        <span><small>Viajes activos</small><strong>{{ data.activeTrips }}</strong></span>
+        <mat-icon class="arrow">arrow_forward</mat-icon>
+      </a>
+      <a routerLink="/drivers" class="metric-card">
+        <span class="metric-icon"><mat-icon>badge</mat-icon></span>
+        <span><small>Conductores disponibles</small><strong>{{ data.availableDrivers }}</strong></span>
+        <mat-icon class="arrow">arrow_forward</mat-icon>
+      </a>
+      <a routerLink="/vehicles" class="metric-card">
+        <span class="metric-icon"><mat-icon>local_taxi</mat-icon></span>
+        <span><small>Vehículos disponibles</small><strong>{{ data.availableVehicles }}</strong></span>
+        <mat-icon class="arrow">arrow_forward</mat-icon>
+      </a>
+    </section>
+
+    <section class="lower-grid">
+      <article class="panel">
+        <div class="panel-title"><div><small>HISTÓRICO</small><h2>Viajes registrados</h2></div><mat-icon>query_stats</mat-icon></div>
+        <div class="trip-breakdown">
+          <div><span class="dot completed"></span><span>Completados</span><strong>{{ data.completedTrips }}</strong></div>
+          <div><span class="dot cancelled"></span><span>Cancelados</span><strong>{{ data.cancelledTrips }}</strong></div>
+        </div>
+      </article>
+      <article class="panel quick-actions">
+        <div class="panel-title"><div><small>ACCESOS RÁPIDOS</small><h2>Gestionar operación</h2></div></div>
+        <a routerLink="/requests"><mat-icon>assignment</mat-icon><span><strong>Revisar solicitudes</strong><small>Consultar solicitudes pendientes</small></span><mat-icon>chevron_right</mat-icon></a>
+        <a routerLink="/maps"><mat-icon>map</mat-icon><span><strong>Abrir mapa</strong><small>Visualizar la cobertura operativa</small></span><mat-icon>chevron_right</mat-icon></a>
+      </article>
+    </section>
+    }
+  }
+</main>

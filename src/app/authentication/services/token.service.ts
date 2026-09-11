@@ -20,4 +20,8 @@ export class TokenService {
     return this.accessToken ?? '';
   }
 
+  clearAccessToken(): void {
+    this.accessToken = undefined;
+  }
+
 }

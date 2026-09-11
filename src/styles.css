@@ -7,8 +7,12 @@ body {
 
 body {
     margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-family: Inter, Roboto, "Helvetica Neue", sans-serif;
+    color: #172033;
+    background: #f4f7fb;
 }
+
+* { box-sizing: border-box; }
 
 .centered-text {
     text-align: center;

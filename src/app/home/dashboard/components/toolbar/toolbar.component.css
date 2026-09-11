@@ -1,7 +1,62 @@
 .example-spacer {
     flex: 1 1 auto;
-  }
+}
 
-  .toolbar-icon{
+.toolbar-icon{
     border-color: transparent;
-  }
+}
+
+.app-toolbar {
+  min-height: 72px;
+  padding: 0 24px;
+  color: #f8fafc;
+  background: #111827;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .08);
+  position: relative;
+  z-index: 3;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 8px;
+  line-height: 1.05;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  color: #111827;
+  background: #fbbf24;
+  font-weight: 900;
+}
+
+.brand small {
+  display: block;
+  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.admin-label { color: #cbd5e1; font-size: 14px; margin-right: 12px; }
+.logout-button {
+  --mdc-outlined-button-label-text-color: #f8fafc;
+  --mdc-outlined-button-outline-color: #475569;
+  --mat-outlined-button-state-layer-color: #f8fafc;
+  color: #f8fafc !important;
+}
+
+.logout-button mat-icon { color: #f8fafc; }
+
+@media (max-width: 640px) {
+  .app-toolbar { padding: 0 10px; }
+  .brand small, .admin-label { display: none; }
+  .logout-button { min-width: 44px; padding: 0 8px; font-size: 0; }
+}

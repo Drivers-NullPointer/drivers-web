@@ -38,6 +38,12 @@ export class PaginationComponent {
 
   @Input({ required: true }) description!: string;
 
+  @Input() title = 'Registros';
+
+  @Input() subtitle = 'Consulta y administra la información disponible.';
+
+  @Input() icon = 'table_view';
+
   @Input() paginationActions?: PaginationActions[];
 
   @Input() generalActions?: GeneralActions[];

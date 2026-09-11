@@ -1,27 +1,24 @@
-<h2 mat-dialog-title class="centered-text">Detalles de la solicitud</h2>
+<div mat-dialog-title class="detail-heading"><span><mat-icon>route</mat-icon></span><div><p>VIAJE</p><h2>Detalle del viaje</h2><small>Ruta, participantes y estado actual del servicio.</small></div></div>
 <mat-dialog-content>
   <div class="flex-row container-request-details">
     <app-maps 
     [polylineEncode]="polylineEncode"
+    [embedded]="true"
     class="container-maps"></app-maps>
-    <!-- <div class="flex-column container-info">
-      <h2 class="centered-text">Información de la solicitud</h2>
-      <div class="flex-row info-row">
-        <p class="bold">Distancia lineal:</p>
-        <p>{{'Sin información'}}</p>
+    <div class="flex-column container-info">
+      <div class="status-line"><span>Estado actual</span><strong>{{ statusLabel(trip?.state) }}</strong></div>
+      <div class="identity-card"><mat-icon>confirmation_number</mat-icon><div><small>IDENTIFICADOR</small><strong>{{ trip?.id }}</strong></div></div>
+      <div class="metrics-grid">
+        <div><mat-icon>person</mat-icon><small>Cliente</small><strong>#{{ trip?.clientId }}</strong></div>
+        <div><mat-icon>badge</mat-icon><small>Conductor</small><strong>{{ trip?.driver ? trip?.driver?.name + ' ' + trip?.driver?.lastname : 'Sin conductor' }}</strong></div>
+        <div><mat-icon>play_circle</mat-icon><small>Inicio</small><strong>{{ dateLabel(trip?.startAt) }}</strong></div>
+        <div><mat-icon>stop_circle</mat-icon><small>Finalización</small><strong>{{ dateLabel(trip?.endAt) }}</strong></div>
       </div>
-      <div class="flex-row info-row">
-        <p class="bold">Punto de partida:</p>
-        <p>{{'Sin dirección'}}</p>
-      </div>
-      <div class="flex-row info-row">
-        <p class="bold">Punto de llegada:</p>
-        <p>{{'Sin dirección'}}</p>
-      </div>
-    </div> -->
+      @if (!polylineEncode) { <div class="route-empty"><mat-icon>route</mat-icon><span><strong>Ruta no disponible</strong><small>Este viaje todavía no tiene un recorrido registrado.</small></span></div> }
+    </div>
   </div>
 
 </mat-dialog-content>
-<mat-dialog-actions [align]="'center'">
-  <button mat-flat-button mat-dialog-close cdkFocusInitial>Aceptar</button>
+<mat-dialog-actions align="end" class="detail-actions">
+  <button mat-flat-button class="primary-action" mat-dialog-close cdkFocusInitial>Listo</button>
 </mat-dialog-actions>
