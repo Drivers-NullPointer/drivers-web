@@ -15,6 +15,20 @@ describe('DispatchComponent', () => {
     api.clients.and.returnValue(of(empty));
     TestBed.configureTestingModule({ imports: [DispatchComponent], providers: [provideRouter([]), { provide: DispatchService, useValue: api }] });
   });
+  it('does not infer receipt from assignment and renders the explicit app receipt', () => {
+    const fixture = TestBed.createComponent(DispatchComponent);
+    const c = fixture.componentInstance;
+    api.trips.and.returnValue(of({ ...empty, result: [
+      { id: 'pending', state: 'ASSIGNED', driverId: 1, clientId: 2 } as any,
+      { id: 'received', state: 'ASSIGNED', driverId: 3, clientId: 4, driverReceivedAt: '2026-09-12T12:00:00' } as any
+    ] }));
+    c.refresh(); fixture.detectChanges();
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    expect(rows[0].textContent).toContain('Sin acuse de recepción');
+    expect(rows[1].textContent).toContain('Recibido por la app');
+    expect(rows[1].textContent).toContain('No implica lectura');
+    fixture.destroy();
+  });
   it('loads operations and stops polling after destruction', fakeAsync(() => {
     const fixture = TestBed.createComponent(DispatchComponent);
     tick(0); expect(api.requests).toHaveBeenCalledTimes(1);
@@ -31,6 +45,15 @@ describe('DispatchComponent', () => {
     component.selectedDriver.set({ id: 2, name: 'Taxi', status: 'AVAILABLE' } as Driver);
     component.assign({ id: 3, expiresAt: '2000-01-01T00:00:00Z' } as RequestTrip);
     expect(api.assign).not.toHaveBeenCalled(); fixture.destroy();
+  });
+  it('explains stale GPS rejection and clears the selected driver', () => {
+    const fixture = TestBed.createComponent(DispatchComponent); const c = fixture.componentInstance;
+    c.selectedDriver.set({ id: 2, name: 'Taxi', status: 'AVAILABLE' } as Driver);
+    api.assign.and.returnValue(throwError(() => ({ status: 409, error: { message: 'DRIVER_LOCATION_REQUIRED' } })));
+    c.assign({ id: 3 } as RequestTrip);
+    expect(c.error()).toContain('GPS vigente');
+    expect(c.selectedDriver()).toBeNull(); expect(c.busy()).toBeFalse();
+    fixture.destroy();
   });
   it('keeps last data and reports refresh failures', () => {
     const fixture = TestBed.createComponent(DispatchComponent); const component = fixture.componentInstance;

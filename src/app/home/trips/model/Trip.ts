@@ -3,6 +3,7 @@ export interface Trip {
     startAt: Date;
     endAt: string | null;
     state: string;
+    driverReceivedAt?: string | null;
     clientId: number;
     driverId: number;
     driver?: {

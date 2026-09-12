@@ -148,7 +148,7 @@ export class DispatchComponent {
     this.busy.set(true); this.message.set('');
     this.api.assign(request.id, driver.id).pipe(takeUntilDestroyed(this.destroy), finalize(() => this.busy.set(false))).subscribe({
       next: () => {
-        this.message.set(`Solicitud #${request.id} asignada a ${driver.name}.`);
+        this.message.set(`Solicitud #${request.id} asignada a ${driver.name}. Recepción en su app pendiente de confirmar.`);
         this.selectedDriver.set(null); this.tripState = 'ASSIGNED'; this.tripPage = 0;
         this.busy.set(false); this.refresh();
       }, error: e => this.mutationError(e)
@@ -165,6 +165,11 @@ export class DispatchComponent {
     }, error: e => this.mutationError(e) });
   }
   private mutationError(error: HttpErrorResponse): void {
+    if (error.status === 409 && error.error?.message === 'DRIVER_LOCATION_REQUIRED') {
+      this.error.set('El conductor no tiene GPS vigente. Pídele revisar ubicación y conexión en su app; actualiza antes de volver a asignar.');
+      this.selectedDriver.set(null);
+      return;
+    }
     this.error.set(error.status === 409 ? 'La operación entró en conflicto. Actualiza: la solicitud o el conductor pudieron cambiar.'
       : error.status === 0 || error.status >= 500 ? 'No se pudo confirmar la operación. Consulta el listado antes de repetirla para evitar duplicados.'
       : 'Operación rechazada. Verifica los datos y la disponibilidad; actualiza antes de reintentar.');
