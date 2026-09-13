@@ -30,10 +30,24 @@ describe('DispatchComponent', () => {
     fixture.destroy();
   });
   it('loads operations and stops polling after destruction', fakeAsync(() => {
+    spyOnProperty(document, 'hidden', 'get').and.returnValue(false);
     const fixture = TestBed.createComponent(DispatchComponent);
     tick(0); expect(api.requests).toHaveBeenCalledTimes(1);
     tick(15000); expect(api.requests).toHaveBeenCalledTimes(2);
     fixture.destroy(); tick(15000); expect(api.requests).toHaveBeenCalledTimes(2);
+  }));
+  it('pauses polling while hidden or disabled and resumes when visible', fakeAsync(() => {
+    const hidden = spyOnProperty(document, 'hidden', 'get').and.returnValue(true);
+    const fixture = TestBed.createComponent(DispatchComponent);
+    tick(15000); expect(api.requests).not.toHaveBeenCalled();
+    hidden.and.returnValue(false);
+    tick(15000); expect(api.requests).toHaveBeenCalledTimes(1);
+    fixture.componentInstance.autoRefresh = false;
+    tick(15000); expect(api.requests).toHaveBeenCalledTimes(1);
+    fixture.componentInstance.autoRefresh = true;
+    tick(15000); expect(api.requests).toHaveBeenCalledTimes(2);
+    fixture.destroy();
+    tick(15000); expect(api.requests).toHaveBeenCalledTimes(2);
   }));
   it('rejects incomplete requests and invalid coordinates', () => {
     const fixture = TestBed.createComponent(DispatchComponent); const component = fixture.componentInstance;
