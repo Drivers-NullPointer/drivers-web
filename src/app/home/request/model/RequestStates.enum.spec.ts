@@ -6,12 +6,12 @@ describe('requestStatesToLabel', () => {
         expect(requestStatesToLabel(RequestStates.PENDING)).toBe(RequestStatesLabel.PENDING);
     });
 
-    it('should return the correct label for IN_PROGRESS', () => {
-        expect(requestStatesToLabel(RequestStates.IN_PROGRESS)).toBe(RequestStatesLabel.IN_PROGRESS);
+    it('should return the correct label for ACCEPTED', () => {
+        expect(requestStatesToLabel(RequestStates.ACCEPTED)).toBe(RequestStatesLabel.ACCEPTED);
     });
 
-    it('should return the correct label for COMPLETED', () => {
-        expect(requestStatesToLabel(RequestStates.COMPLETED)).toBe(RequestStatesLabel.COMPLETED);
+    it('should return the correct label for EXPIRED', () => {
+        expect(requestStatesToLabel(RequestStates.EXPIRED)).toBe(RequestStatesLabel.EXPIRED);
     });
 
     it('should return the correct label for CANCELLED', () => {

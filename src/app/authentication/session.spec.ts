@@ -13,6 +13,7 @@ import { environment } from '../../environments/environment';
 
 describe('Panel session and concurrent authentication', () => {
   const base = environment.apiUrl + environment.apiVersion;
+  const refreshResponse = (token = 'fresh') => ({ token, refreshToken: null });
   const response = (token = 'fresh', roleId = 1) => ({ token, user: { id: 10, name: 'Test', email: 'test@example.com', roleId, isEmailVerified: true } });
   let http: HttpTestingController;
   let client: HttpClient;
@@ -41,7 +42,7 @@ describe('Panel session and concurrent authentication', () => {
     b.flush(null, { status: 401, statusText: 'Unauthorized' });
     const refresh = http.expectOne(auth.refreshTokenPath);
     expect(refresh.request.headers.has('Authorization')).toBeFalse(); expect(refresh.request.withCredentials).toBeTrue();
-    refresh.flush(response());
+    refresh.flush(refreshResponse());
     for (const path of ['/admin/drivers', '/admin/clients']) {
       const retry = http.expectOne(base + path); expect(retry.request.headers.get('Authorization')).toBe('Bearer fresh'); retry.flush({});
     }
@@ -51,7 +52,7 @@ describe('Panel session and concurrent authentication', () => {
   it('a late 401 reuses the refreshed token without rotating the cookie again', () => {
     client.get(base + '/admin/drivers').subscribe(); client.get(base + '/admin/clients').subscribe();
     const a = http.expectOne(base + '/admin/drivers'); const b = http.expectOne(base + '/admin/clients');
-    a.flush(null, { status: 401, statusText: 'Unauthorized' }); http.expectOne(auth.refreshTokenPath).flush(response());
+    a.flush(null, { status: 401, statusText: 'Unauthorized' }); http.expectOne(auth.refreshTokenPath).flush(refreshResponse());
     http.expectOne(base + '/admin/drivers').flush({});
     b.flush(null, { status: 401, statusText: 'Unauthorized' });
     const retry = http.expectOne(base + '/admin/clients'); expect(retry.request.headers.get('Authorization')).toBe('Bearer fresh'); retry.flush({});
@@ -62,7 +63,7 @@ describe('Panel session and concurrent authentication', () => {
     for (const status of [403, 500]) {
       client.get(base + '/admin/drivers').subscribe(failure);
       http.expectOne(base + '/admin/drivers').flush(null, { status: 401, statusText: 'Unauthorized' });
-      http.expectOne(auth.refreshTokenPath).flush(response());
+      http.expectOne(auth.refreshTokenPath).flush(refreshResponse());
       http.expectOne(base + '/admin/drivers').flush(null, { status, statusText: 'Rejected' });
       expect(tokens.getAccessToken()).toBe('fresh');
     }
@@ -80,7 +81,7 @@ describe('Panel session and concurrent authentication', () => {
   it('does not recurse if the resource still rejects the refreshed token', () => {
     client.get(base + '/admin/drivers').subscribe(failure);
     http.expectOne(base + '/admin/drivers').flush(null, { status: 401, statusText: 'Unauthorized' });
-    http.expectOne(auth.refreshTokenPath).flush(response());
+    http.expectOne(auth.refreshTokenPath).flush(refreshResponse());
     http.expectOne(base + '/admin/drivers').flush(null, { status: 401, statusText: 'Unauthorized' });
     http.expectNone(auth.refreshTokenPath); expect(tokens.getAccessToken()).toBe('');
   });
@@ -89,14 +90,14 @@ describe('Panel session and concurrent authentication', () => {
     auth.refreshToken().subscribe(failure);
     http.expectOne(auth.refreshTokenPath).flush(null, { status: 503, statusText: 'Unavailable' });
     expect(tokens.getAccessToken()).toBe('old');
-    auth.refreshToken().subscribe(); http.expectOne(auth.refreshTokenPath).flush(response());
+    auth.refreshToken().subscribe(); http.expectOne(auth.refreshTokenPath).flush(refreshResponse());
     expect(tokens.getAccessToken()).toBe('fresh'); expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it('bounds a hung refresh and releases the in-flight slot', fakeAsync(() => {
     auth.refreshToken().subscribe(failure); const pending = http.expectOne(auth.refreshTokenPath);
     tick(15001); expect(pending.cancelled).toBeTrue(); expect(tokens.getAccessToken()).toBe('old');
-    auth.refreshToken().subscribe(); http.expectOne(auth.refreshTokenPath).flush(response());
+    auth.refreshToken().subscribe(); http.expectOne(auth.refreshTokenPath).flush(refreshResponse());
   }));
 
   it('logout cancels refresh and no stale response restores the session', () => {
@@ -169,7 +170,7 @@ describe('Panel session and concurrent authentication', () => {
     auth.clearSession(); let count = 0;
     auth.ensurePanelSession().subscribe(result => { expect(result).toBeTrue(); count++; });
     auth.ensurePanelSession().subscribe(result => { expect(result).toBeTrue(); count++; });
-    http.expectOne(auth.refreshTokenPath).flush(response('operator', 6));
+    http.expectOne(auth.refreshTokenPath).flush(refreshResponse('operator'));
     http.expectOne(base + '/admin/session').flush({ roleId: 6 }); expect(count).toBe(2);
   });
 

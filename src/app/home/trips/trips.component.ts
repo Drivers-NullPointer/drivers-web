@@ -55,7 +55,7 @@ export class TripsComponent {
   }
 
 
-  dateToString(date?: Date): string {
+  dateToString(date?: Date | string | null): string {
     if (!date) return 'Sin fecha';
     return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
   }

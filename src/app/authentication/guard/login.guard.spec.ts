@@ -1,107 +1,41 @@
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from "@angular/router";
-import { canActivateGuardLogin } from "./login.guard";
-import { TestBed } from "@angular/core/testing";
-import { TokenService } from "../services/token.service";
-import { constants } from "../../constants/constants";
-import { AuthService } from "../services/auth.service";
-import { LoginResponse } from "../model/LoginResponse";
-import { of } from "rxjs";
-
-const loginResponse: LoginResponse = {
-    token: 'mockToken',
-    refreshToken: 'mockRefreshToken',
-    user: {
-        id: 1,
-        name: 'mockName',
-        lastname: 'mockLastName',
-        email: 'mockEmail',
-        password: 'mockPassword',
-        birthdate: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        role: {
-            id: 1,
-            description: 'mockDescription',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
-    }
-};
+import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter, UrlTree } from '@angular/router';
+import { firstValueFrom, Observable, of, Subject } from 'rxjs';
+import { canActivateGuardLogin } from './login.guard';
+import { AuthService } from '../services/auth.service';
 
 describe('canActivateGuardLogin', () => {
-
-    let routerServiceMock: jasmine.SpyObj<Router>;
-    let authServiceSpy: jasmine.SpyObj<AuthService>;
-    let tokenServiceSpy: TokenService;
-
-    const executeGuard: CanActivateFn = (...guardParameters) =>
-        TestBed.runInInjectionContext(() => canActivateGuardLogin(...guardParameters));
-
-    beforeEach(() => {
-        routerServiceMock = jasmine.createSpyObj<Router>('Router', ['navigate']);
-        authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['refreshToken']);
-
-        TestBed.configureTestingModule({
-            providers: [
-                TokenService,
-                { provide: Router, useValue: routerServiceMock },
-                { provide: AuthService, useValue: authServiceSpy },
-            ],
-        });
-
-        tokenServiceSpy = TestBed.inject(TokenService);
-    });
-
-
-    it('should return false and navigate to home when token exists', async () => {
-        const mockRoute = {} as ActivatedRouteSnapshot;
-        const mockState = {} as RouterStateSnapshot;
-
-
-        tokenServiceSpy.setAccessToken('mockToken');
-        const result = await executeGuard(mockRoute, mockState);
-
-        expect(result).toBeFalse();
-    });
-
-    it('should return true if the refresh token fails', async () => {
-        const mockRoute = {} as ActivatedRouteSnapshot;
-        const mockState = {} as RouterStateSnapshot;
-
-        authServiceSpy.refreshToken.and.throwError('Error');
-
-        const result = await executeGuard(mockRoute, mockState);
-
-        expect(result).toBeTrue();
-    });
-
-    it('should return true if the refresh token return empty', async () => {
-        const mockRoute = {} as ActivatedRouteSnapshot;
-        const mockState = {} as RouterStateSnapshot;
-
-        authServiceSpy.refreshToken.and.returnValue(of({
-            ...loginResponse,
-            token: ''
-        }));
-
-
-
-        const result = await executeGuard(mockRoute, mockState);
-
-        expect(result).toBeTrue();
-    });
-
-    it('should return false and navigate to home when token is refreshed', async () => {
-        const mockRoute = {} as ActivatedRouteSnapshot;
-        const mockState = {} as RouterStateSnapshot;
-
-        authServiceSpy.refreshToken.and.callFake(() => {
-            tokenServiceSpy.setAccessToken('newToken');
-            return of(loginResponse);
-        });
-
-        const result = await executeGuard(mockRoute, mockState);
-
-        expect(result).toBeFalse();
-    });
+  let auth: jasmine.SpyObj<AuthService>;
+  let router: Router;
+  const run = () => TestBed.runInInjectionContext(() =>
+    canActivateGuardLogin({} as any, { url: '/dispatch' } as any)) as Observable<boolean | UrlTree>;
+  beforeEach(() => {
+    auth = jasmine.createSpyObj<AuthService>('AuthService', ['ensurePanelSession']);
+    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: AuthService, useValue: auth }] });
+    router = TestBed.inject(Router);
+  });
+  it('handles a server-verified panel session', async () => {
+    auth.ensurePanelSession.and.returnValue(of(true));
+    expect(await firstValueFrom(run())).toEqual(router.createUrlTree(['/dispatch']));
+    expect(auth.ensurePanelSession).toHaveBeenCalledOnceWith();
+  });
+  it('handles a denied or expired session', async () => {
+    auth.ensurePanelSession.and.returnValue(of(false));
+    expect(await firstValueFrom(run())).toEqual(true);
+  });
+  it('waits for session verification instead of trusting cached tokens', () => {
+    const pending = new Subject<boolean>();
+    auth.ensurePanelSession.and.returnValue(pending);
+    const results: (boolean | UrlTree)[] = [];
+    run().subscribe(value => results.push(value));
+    expect(results).toEqual([]);
+    pending.next(true); pending.complete();
+    expect(results).toEqual([router.createUrlTree(['/dispatch'])]);
+  });
+  it('does not imperatively navigate from a guard', async () => {
+    const navigate = spyOn(router, 'navigate');
+    auth.ensurePanelSession.and.returnValue(of(false));
+    await firstValueFrom(run());
+    expect(navigate).not.toHaveBeenCalled();
+  });
 });

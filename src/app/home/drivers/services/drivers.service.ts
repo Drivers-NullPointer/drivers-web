@@ -31,7 +31,7 @@ export class DriversService extends PaginationServices {
       if (key === 'imageProfileFile') {
         if (value) {
           // * If the value is a file, we append it to the formData
-          formData.append('imageProfile', value as File);
+          formData.append('file', value as File);
         }
       } else {
         formData.append(key, value as string);

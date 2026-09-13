@@ -12,38 +12,32 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 const mockRequestTrip: RequestTrip = {
   id: 1,
   startAddress: {
-    id: 1,
-    fullAddress: '123 Main St, Springfield, IL',
-    shortAddress: '123 Main St',
-    street_number: undefined,
+    streetNumber: undefined,
     street: undefined,
     city: 'Springfield',
     colony: undefined,
     state: 'IL',
-    cp: undefined,
+    postalCode: undefined,
     location: {
       latitude: 39.7817,
       longitude: -89.6501
     }
   },
   endAddress: {
-    id: 2,
-    fullAddress: '456 Elm St, Springfield, IL',
-    shortAddress: '456 Elm St',
-    street_number: undefined,
+    streetNumber: undefined,
     street: undefined,
     city: 'Springfield',
     colony: undefined,
     state: 'IL',
-    cp: undefined,
+    postalCode: undefined,
     location: {
       latitude: 39.7990,
       longitude: -89.6436
     }
   },
-  distance: 10.5,
+  clientId: 1, initialPrice: 50, distanceMeters: 10500,
   state: 'completed',
-  createdAt: new Date('2023-10-27T10:00:00Z')
+  createdAt: '2023-10-27T10:00:00Z'
 };
 const dialogData: DialogData<RequestTrip> = {
   action: DialogAction.OBSERVE,

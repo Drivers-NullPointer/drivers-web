@@ -4,8 +4,8 @@ import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { LoginDTO } from '../model/LoginDTO';
 import { LoginResponse } from '../model/LoginResponse';
+import { RefreshResponse } from '../model/RefreshResponse';
 import { TokenService } from './token.service';
-import { SendForgotPasswordResponse } from '../model/SendForgotPasswordResponse';
 
 const loginDTO: LoginDTO = {
   email: 'example@mail.com',
@@ -14,48 +14,14 @@ const loginDTO: LoginDTO = {
 const mockResponse: LoginResponse = {
   token: 'token',
   refreshToken: 'refreshToken',
-  user: {
-    id: 1,
-    name: 'name',
-    lastname: 'lastname',
-    email: 'email',
-    password: 'password',
-    birthdate: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: {
-      id: 1,
-      description: 'description',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  }
+  user: { id: 1, name: 'Admin', email: 'admin@example.com', roleId: 1, isEmailVerified: true }
 };
 
-const refreshTokenResponse: LoginResponse = {
+const refreshTokenResponse: RefreshResponse = {
   token: 'token',
   refreshToken: 'refreshToken',
-  user: {
-    id: 1,
-    name: 'name',
-    lastname: 'lastname',
-    email: 'email',
-    password: 'password',
-    birthdate: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: {
-      id: 1,
-      description: 'description',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  }
 };
 
-const sendForgotPassordResponse: SendForgotPasswordResponse = {
-  message: 'message'
-}
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -135,7 +101,7 @@ describe('AuthService', () => {
 
     service.verifyAccount('token').subscribe({
       next: (res) => {
-        expect(res).toEqual(mockResponse);
+        expect(res).toEqual('Success');
 
         done();
       },
@@ -147,14 +113,15 @@ describe('AuthService', () => {
 
     const req = httpClient.expectOne(`${service.verifyAccountPath}?token=token`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockResponse);
+    expect(req.request.responseType).toBe('text');
+    req.flush('Success');
   });
 
   it('should call reset password', (done) => {
 
     service.resetPassword({ token: 'token', password: 'password' }).subscribe({
       next: (res) => {
-        expect(res).toEqual(mockResponse)
+        expect(res).toBeNull();
         done();
       },
       error: (error) => {
@@ -165,14 +132,14 @@ describe('AuthService', () => {
 
     const req = httpClient.expectOne(service.resetPasswordPath);
     expect(req.request.method).toBe('POST');
-    req.flush(mockResponse);
+    req.flush(null);
   });
 
   it('should call send reset password', (done) => {
 
     service.sendResetPassword({ email: 'email' }).subscribe({
       next: (res) => {
-        expect(res).toEqual(sendForgotPassordResponse)
+        expect(res).toBeNull();
         done();
       },
       error: (error) => {
@@ -183,7 +150,7 @@ describe('AuthService', () => {
 
     const req = httpClient.expectOne(service.sendResetPasswordPath);
     expect(req.request.method).toBe('POST');
-    req.flush(sendForgotPassordResponse);
+    req.flush(null);
   });
 
 });

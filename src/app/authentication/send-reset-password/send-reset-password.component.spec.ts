@@ -36,9 +36,7 @@ describe('SendResetPasswordComponent', () => {
 
   it('should send reset password when form is valid', () => {
 
-    authService.sendResetPassword.and.returnValue(of({
-      message: 'Email sent'
-    }));
+    authService.sendResetPassword.and.returnValue(of(void 0));
 
     component.form.patchValue({ email: 'example@email.com' });
     component.sendEmail();

@@ -10,7 +10,8 @@ import { ToastService } from '../../../../shared/toast/toast.service';
 import { of, throwError } from 'rxjs';
 
 
-const driver = {
+const driver: Driver = {
+  status: 'AVAILABLE',
   id: 1,
   name: 'test',
   email: 'example@emial.com',
@@ -46,7 +47,7 @@ describe('EditFormDialogComponent with create action', () => {
   beforeEach(async () => {
 
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
-    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['updateDriver']);
     toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
@@ -73,7 +74,7 @@ describe('EditFormDialogComponent with create action', () => {
       birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
     });
 
-    driversServiceMock.createDriver.and.returnValue(of({ ...driver, id: 1 }));
+
 
     component.save();
 
@@ -91,53 +92,25 @@ describe('EditFormDialogComponent with create action', () => {
     expect(component.formDriver.controls.birthdate.errors?.['minor']).toBeTruthy();
   });
 
-  it("should create a driver when form is valid", () => {
-    component.formDriver.patchValue({
-      ...driver,
-      birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
-    });
-
-    driversServiceMock.createDriver.and.returnValue(of({ ...driver, id: 1 }));
-
+  it('does not create drivers from the admin form', () => {
+    component.formDriver.patchValue({ ...driver, birthdate: '1990-01-01' });
     component.save();
-
     expect(component.formDriver.valid).toBeTrue();
-    expect(driversServiceMock.createDriver).toHaveBeenCalled();
-    expect(dialogRef.close).toHaveBeenCalled();
+    expect(driversServiceMock.updateDriver).not.toHaveBeenCalled();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
-  it("should show success message when driver is created", () => {
-    component.formDriver.patchValue({
-      ...driver,
-      birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
-    });
-
-    driversServiceMock.createDriver.and.returnValue(of({ ...driver, id: 1 }));
-
+  it('does not report a successful creation for an unsupported action', () => {
+    component.formDriver.patchValue({ ...driver, birthdate: '1990-01-01' });
     component.save();
-
-    expect(toastServiceMock.showSuccessMessage).toHaveBeenCalledWith({
-      title: 'Conductor creado',
-      message: 'Se ha creado el conductor'
-    });
+    expect(toastServiceMock.showSuccessMessage).not.toHaveBeenCalled();
   });
 
-  it("should show error message when create driver fails", () => {
-    const errorMessage = 'Error al crear el conductor';
-    driversServiceMock.createDriver.and.returnValue(
-      throwError(() => ({ message: errorMessage }))
-    );
-
-    component.formDriver.patchValue({
-      ...driver,
-      birthdate: new Date(new Date().setFullYear(new Date().getFullYear() - 20)).toISOString()
-    });
-
+  it('reports validation errors before attempting a mutation', () => {
+    component.formDriver.reset();
     component.save();
-
-    expect(toastServiceMock.showErrorMessage).toHaveBeenCalledWith({
-      title: 'Error al crear conductor', message: 'No se ha podido crear el conductor'
-    });
+    expect(toastServiceMock.showErrorMessage).toHaveBeenCalledWith({ message: 'Verifique sus datos' });
+    expect(driversServiceMock.updateDriver).not.toHaveBeenCalled();
   });
 });
 
@@ -152,7 +125,7 @@ describe('EditFormDialogComponent with observer action', () => {
 
   beforeEach(async () => {
 
-    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['updateDriver']);
     toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
@@ -188,7 +161,7 @@ describe('EditFormDialogComponent with edit action', () => {
   beforeEach(async () => {
 
     dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
-    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver']);
+    driversServiceMock = jasmine.createSpyObj<DriversService>('DriversService', ['updateDriver']);
     toastServiceMock = jasmine.createSpyObj<ToastService>('ToastService', ['showError', 'showSuccess', 'showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
@@ -235,6 +208,14 @@ describe('EditFormDialogComponent with edit action', () => {
     component.save();
     expect(component.formDriver.valid).toBeTrue();
     expect(dialogRef.close).toHaveBeenCalled();
+  });
+
+  it('sends a date-only birthdate accepted by the backend LocalDate field', () => {
+    driversServiceMock.updateDriver.and.returnValue(of(driver));
+    component.formDriver.patchValue({ birthdate: '1990-05-20' });
+    component.save();
+    expect(driversServiceMock.updateDriver).toHaveBeenCalledWith(driver.id,
+      jasmine.objectContaining({ birthdate: '1990-05-20' }));
   });
 
   it("when save info and no have changes create correctly", () => {

@@ -5,10 +5,10 @@ import { catchError, defer, finalize, map, Observable, of, shareReplay, Subject,
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { LoginResponse } from '../model/LoginResponse';
+import { RefreshResponse } from '../model/RefreshResponse';
 import { environment } from '../../../environments/environment';
 import { ResetPasswordDTO } from '../model/ResetPasswordDTO';
 import { SendForgotPassordDto } from '../model/SendForgotPassordDto';
-import { SendForgotPasswordResponse } from '../model/SendForgotPasswordResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class AuthService {
   private readonly panelSessionPath = environment.apiUrl + environment.apiVersion + '/admin/session';
   private readonly router = inject(Router);
   private readonly sessionCancelled = new Subject<void>();
-  private refreshInFlight$?: Observable<LoginResponse>;
+  private refreshInFlight$?: Observable<RefreshResponse>;
   private readonly panelRole = signal<number | null>(null);
   readonly roleId = this.panelRole.asReadonly();
   readonly isAdmin = computed(() => this.panelRole() === 1 || this.panelRole() === 2);
@@ -67,13 +67,12 @@ export class AuthService {
     return defer(() => {
       if (this.refreshInFlight$) return this.refreshInFlight$;
       const version = this.tokenService.sessionVersion;
-      const refresh$ = this.http.post<LoginResponse>(this.refreshTokenPath, null).pipe(
+      const refresh$ = this.http.post<RefreshResponse>(this.refreshTokenPath, null).pipe(
         timeout(15000),
         takeUntil(this.sessionCancelled),
         tap(response => {
           if (version !== this.tokenService.sessionVersion) throw new Error('SESSION_CHANGED');
           this.tokenService.setAccessToken(response.token);
-          this.panelRole.set(response.user.roleId);
         }),
         catchError(error => {
           if (error.status === 401 || error.status === 403) this.expireSession(version);
@@ -156,16 +155,16 @@ export class AuthService {
   verifyAccount(token: string) {
     const queryParams = new URLSearchParams();
     queryParams.set('token', token);
-    return this.http.get(`${this.verifyAccountPath}?${queryParams.toString()}`);
+    return this.http.get(`${this.verifyAccountPath}?${queryParams.toString()}`, { responseType: 'text' });
   }
 
   resetPassword(
     resetPasswordDTO: ResetPasswordDTO
   ) {
-    return this.http.post(`${this.resetPasswordPath}`, resetPasswordDTO);
+    return this.http.post<void>(`${this.resetPasswordPath}`, resetPasswordDTO);
   }
 
   sendResetPassword(sendForgotPassordDto: SendForgotPassordDto) {
-    return this.http.post<SendForgotPasswordResponse>(`${this.sendResetPasswordPath}`, sendForgotPassordDto);
+    return this.http.post<void>(`${this.sendResetPasswordPath}`, sendForgotPassordDto);
   }
 }

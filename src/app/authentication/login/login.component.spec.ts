@@ -11,22 +11,7 @@ import { messages } from '../../constants/constants';
 const loginResponse: LoginResponse = {
   token: 'token',
   refreshToken: 'refresh',
-  user: {
-    id: 1,
-    name: 'name',
-    lastname: 'lastname',
-    email: 'email@example.com',
-    password: 'password',
-    birthdate: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    role: {
-      id: 1,
-      description: 'description',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  }
+  user: { id: 1, name: 'Admin', email: 'admin@example.com', roleId: 1, isEmailVerified: true }
 };
 
 const credentials = {
@@ -85,7 +70,7 @@ describe('LoginComponent', () => {
 
     component.login();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/drivers']);
+    expect(router.navigate).toHaveBeenCalledWith(['/dispatch']);
   });
 
   it('should show when 404 error', () => {

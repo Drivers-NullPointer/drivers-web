@@ -18,15 +18,16 @@ const paginationRequest = {
 
 const paginationResponse: PaginatedResult<Driver> = {
   pagination: {
-    currentPage: 1,
-    pageSize: 10,
-    totalItems: 1,
+    page: 1,
+    limit: 10,
+    totalElements: 1,
     totalPages: 1,
   },
   result: []
 };
 
 const createDriverDto: CreateDriverDto = {
+  status: 'AVAILABLE',
   name: 'test',
   email: 'example@emial.com',
   birthdate: new Date().toISOString(),
@@ -78,14 +79,9 @@ describe('DriversService', () => {
     req.flush(paginationResponse);
   });
 
-  it('should create a driver without img profile', (done) => {
-    service.createDriver(createDriverDto).subscribe((response) => {
-      expect(response).toEqual(driver);
-      done();
-    });
-
-    const req = httpController.expectOne(service['controller']);
-    req.flush(driver);
+  it('does not expose an admin create-driver endpoint', () => {
+    expect('createDriver' in service).toBeFalse();
+    httpController.expectNone(service['controller']);
   });
 
   it('should delete a driver', (done) => {
@@ -160,18 +156,14 @@ describe('DriversService', () => {
 
   });
 
-  it('should create a driver with img profile', (done) => {
-    const createDriverDtoWithImg: CreateDriverDto = {
-      ...createDriverDto,
-      imageProfileFile: new File([''], 'test.jpg')
-    };
-
-    service.createDriver(createDriverDtoWithImg).subscribe((response) => {
-      expect(response).toEqual(driver);
-      done();
-    });
-
-    const req = httpController.expectOne(service['controller']);
+  it('sends profile image as multipart data on update', () => {
+    const image = new File(['photo'], 'driver.jpg');
+    service.updateDriver(1, { ...updateDriverDto, imageProfileFile: image }).subscribe();
+    const req = httpController.expectOne(`${service['controller']}/1`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body.get('file')).toBe(image);
+    expect(req.request.body.has('imageProfile')).toBeFalse();
+    expect(req.request.body.get('name')).toBe(updateDriverDto.name);
     req.flush(driver);
   });
 

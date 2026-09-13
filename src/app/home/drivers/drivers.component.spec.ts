@@ -16,15 +16,16 @@ import { DriverStatus } from './model/driver.status';
 
 const paginationResponseDriver: PaginatedResult<Driver> = {
   pagination: {
-    currentPage: 1,
-    totalItems: 100,
+    page: 1,
+    totalElements: 100,
     totalPages: 10,
-    pageSize: 10
+    limit: 10
   },
   result: []
 };
 
 const driver: Driver = {
+  status: 'AVAILABLE',
   id: 1,
   name: 'name',
   lastname: 'lastname',
@@ -45,7 +46,7 @@ describe('DriversComponent', () => {
   beforeEach(async () => {
     toastsServiceSpy = jasmine.createSpyObj<ToastService>('ToastService', ['showSuccess', 'showError', 'showSuccessMessage', 'showErrorMessage']);
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    driversServiceSpy = jasmine.createSpyObj<DriversService>('DriversService', ['createDriver', 'updateDriver', 'deleteDriver', 'getAllPaginated', 'notifyChangeSignal']);
+    driversServiceSpy = jasmine.createSpyObj<DriversService>('DriversService', ['updateDriver', 'deleteDriver', 'getAllPaginated', 'notifyChangeSignal']);
 
     await TestBed.configureTestingModule({
       imports: [DriversComponent],
@@ -112,37 +113,22 @@ describe('DriversComponent', () => {
   });
 
 
-  it('should create driver and success response', () => {
-
-    const dialogRefSpy = jasmine.createSpyObj({
-      afterClosed: of(driver),
-      close: null
-    });
-
-    dialogSpy.open.and.returnValue(dialogRefSpy);
-    driversServiceSpy.createDriver.and.returnValue(of(driver));
-
-    component.generalActions[0].action();
-    expect(dialogSpy.open).toHaveBeenCalled();
+  it('does not expose admin driver creation', () => {
+    expect(component.generalActions).toEqual([]);
+    expect(dialogSpy.open).not.toHaveBeenCalled();
   });
 
-  it('should create driver and error response', () => {
-
-    const dialogRefSpy = jasmine.createSpyObj({
-      afterClosed: of(driver),
-      close: null
-    });
-
-    dialogSpy.open.and.returnValue(dialogRefSpy);
-    driversServiceSpy.createDriver.and.returnValue(throwError(() => new Error('error')));
-
-    component.generalActions[0].action();
-    expect(dialogSpy.open).toHaveBeenCalled();
+  it('does not delete a driver when confirmation is cancelled', () => {
+    dialogSpy.open.and.returnValue({ afterClosed: () => of(false) } as MatDialogRef<unknown>);
+    component.paginationActions[1].action(driver);
+    expect(driversServiceSpy.deleteDriver).not.toHaveBeenCalled();
+    expect(toastsServiceSpy.showSuccessMessage).not.toHaveBeenCalled();
   });
 
   it('should delete driver and success response', () => {
 
-    driversServiceSpy.deleteDriver.and.returnValue(of(driver));
+    dialogSpy.open.and.returnValue({ afterClosed: () => of(true) } as MatDialogRef<unknown>);
+    driversServiceSpy.deleteDriver.and.returnValue(of(void 0));
 
     component.paginationActions[1].action(driver);
     expect(toastsServiceSpy.showSuccessMessage).toHaveBeenCalledWith({
@@ -153,6 +139,7 @@ describe('DriversComponent', () => {
 
   it('should delete driver and error response', () => {
 
+    dialogSpy.open.and.returnValue({ afterClosed: () => of(true) } as MatDialogRef<unknown>);
     driversServiceSpy.deleteDriver.and.returnValue(throwError(() => new Error('error')));
 
     component.paginationActions[1].action(driver);
@@ -180,7 +167,7 @@ describe('DriversComponent', () => {
     const status = DriverStatus.AVARIABLE;
     const expectedStatus = component.driverColumns[5]?.transform?.(status);
 
-    expect(expectedStatus).toBe(expectedStatus);
+    expect(expectedStatus).toBe('Disponible');
 
   });
 

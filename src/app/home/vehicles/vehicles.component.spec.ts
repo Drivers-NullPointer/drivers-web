@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 
 const vehicleServiceMock: Vehicle = {
+  year: 2020, makeId: 1, modelId: 1, colorId: 1,
   id: 1,
   model: 'Corolla',
   plates: 'ABC123',
@@ -26,9 +27,9 @@ const paginatedResultMock: PaginatedResult<Vehicle> = {
     vehicleServiceMock
   ],
   pagination: {
-    currentPage: 1,
-    pageSize: 1,
-    totalItems: 1,
+    page: 1,
+    limit: 1,
+    totalElements: 1,
     totalPages: 1
   }
 };
@@ -42,7 +43,7 @@ describe('VehiclesComponent', () => {
   let matDialog: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    vehicleService = jasmine.createSpyObj<VehiclesService>('VehiclesService', ['getAllPaginated', 'notifyChangeSignal', 'update', 'delete', 'create']);
+    vehicleService = jasmine.createSpyObj<VehiclesService>('VehiclesService', ['getAllPaginated', 'notifyChangeSignal', 'update', 'create']);
     toastsServiceSpy = jasmine.createSpyObj<ToastService>('ToastService', ['showSuccess', 'showError']);
     matDialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
 
@@ -58,7 +59,7 @@ describe('VehiclesComponent', () => {
       .compileComponents();
 
     vehicleService.getAllPaginated.and.returnValue(of(paginatedResultMock));
-    vehicleService.delete.and.returnValue(of(vehicleServiceMock));
+
     vehicleService.create.and.returnValue(of(vehicleServiceMock));
     vehicleService.update.and.returnValue(of(vehicleServiceMock));
 
@@ -102,22 +103,15 @@ describe('VehiclesComponent', () => {
     expect(toastsServiceSpy.showError).toHaveBeenCalled();
   });
 
-  it('should delete vehicle success', () => {
-
-    component.paginationActions[1].action(vehicleServiceMock);
-
-    expect(toastsServiceSpy.showSuccess).toHaveBeenCalled();
+  it('does not expose vehicle deletion', () => {
+    expect(component.paginationActions.map(action => action.name)).toEqual(['Editar', 'Ver']);
   });
 
-  it('should delete vehicle error', () => {
-
-    vehicleService.delete.and.returnValue(
-      throwError(() => new Error('Error'))
-    );
-
+  it('does not mutate a vehicle when observation closes', () => {
+    matDialog.open.and.returnValue({ afterClosed: () => of(vehicleServiceMock) } as any);
     component.paginationActions[1].action(vehicleServiceMock);
-
-    expect(toastsServiceSpy.showError).toHaveBeenCalled();
+    expect(vehicleService.update).not.toHaveBeenCalled();
+    expect(vehicleService.create).not.toHaveBeenCalled();
   });
 
   it('should create vehicle success', () => {
@@ -157,7 +151,7 @@ describe('VehiclesComponent', () => {
       close: () => { }
     });
 
-    component.paginationActions[2].action(vehicleServiceMock);
+    component.paginationActions[1].action(vehicleServiceMock);
 
     expect(matDialog.open).toHaveBeenCalled();
   });

@@ -19,10 +19,10 @@ const request: RequestTrip = {
 
 const paginationResult: PaginatedResult<RequestTrip> = {
   pagination: {
-    currentPage: 1,
-    totalItems: 1,
+    page: 1,
+    totalElements: 1,
     totalPages: 1,
-    pageSize: 1
+    limit: 1
   },
   result: []
 };
@@ -82,22 +82,19 @@ describe('RequestComponent', () => {
 
   });
 
-  it('should call thorw error when clicked in add action', () => {
-    expect(() => component.generalActions[0].action()).toThrowError('Not implemented');
+  it('does not expose unsupported request creation', () => {
+    expect(component.generalActions).toEqual([]);
   });
 
   it('should call addressToString', () => {
     const address: Address = {
-      id: 1,
-      shortAddress: 'Calle 1'
+      street: 'Calle 1', location: {}
     };
     expect(component.addressToString(address)).toBe('Calle 1');
   });
 
   it('should call addressToString with no short address', () => {
-    const address: Address = {
-      id: 1
-    };
+    const address: Address = { location: {} };
     expect(component.addressToString(address)).toBe('Sin dirección');
   });
 

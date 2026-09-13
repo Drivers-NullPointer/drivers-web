@@ -31,8 +31,8 @@ describe('KeystoreService', () => {
       expect(response).toBe(key);
       done();
     });
-    const req = httpController.expectOne(`${service['controller']}/maps`);
-    req.flush({ key });
+    const req = httpController.expectOne(service['controller']);
+    req.flush({ apiKey: key, mapId: 'mapId' });
   });
 
   it('should get maps key if cached', (done) => {
@@ -49,7 +49,7 @@ describe('KeystoreService', () => {
       expect(error).toBeInstanceOf(HttpErrorResponse);
       done();
     });
-    const req = httpController.expectOne(`${service['controller']}/maps`);
+    const req = httpController.expectOne(service['controller']);
     req.flush(null, { status: 0, statusText: 'Unknown Error' });
   });
 
@@ -61,8 +61,8 @@ describe('KeystoreService', () => {
       expect(response).toBe(key);
       done();
     });
-    const req = httpController.expectOne(`${service['controller']}/mapId`);
-    req.flush({ key });
+    const req = httpController.expectOne(service['controller']);
+    req.flush({ apiKey: 'mapsKey', mapId: key });
   });
 
   it('should get map id if cached', (done) => {
@@ -79,7 +79,7 @@ describe('KeystoreService', () => {
       expect(error).toBeInstanceOf(HttpErrorResponse);
       done();
     });
-    const req = httpController.expectOne(`${service['controller']}/mapId`);
+    const req = httpController.expectOne(service['controller']);
     req.flush(null, { status: 0, statusText: 'Unknown Error' });
   });
 });

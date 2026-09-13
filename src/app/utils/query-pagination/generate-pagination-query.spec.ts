@@ -30,7 +30,7 @@ describe('generatePaginationQuery', () => {
 
     it('debería incluir los parámetros "sort" y "order" si se proporcionan', () => {
         const result = generatePaginationQuery({ sort: 'name', order: 'asc' });
-        expect(result.toString()).toBe('sort=name&order=asc');
+        expect(result.toString()).toBe('sort=NAME&order=ASC');
     });
 
     it('debería generar un query string completo con todos los parámetros', () => {
@@ -41,6 +41,6 @@ describe('generatePaginationQuery', () => {
             sort: 'name',
             order: 'desc',
         });
-        expect(result.toString()).toBe('page=2&limit=20&search=test&sort=name&order=desc');
+        expect(result.toString()).toBe('page=2&limit=20&search=test&sort=NAME&order=DESC');
     });
 });

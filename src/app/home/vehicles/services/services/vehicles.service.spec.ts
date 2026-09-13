@@ -12,10 +12,10 @@ import { Color } from '../../model/Color';
 
 const paginationResult: PaginatedResult<Vehicle> = {
   pagination: {
-    currentPage: 1,
-    totalItems: 1,
+    page: 1,
+    totalElements: 1,
     totalPages: 1,
-    pageSize: 1
+    limit: 1
   },
   result: []
 }
@@ -23,19 +23,19 @@ const paginationResult: PaginatedResult<Vehicle> = {
 const makeResult: Make[] = [
   {
     id: 1,
-    make: 'make'
+    name: 'make'
   }
 ];
 const modelResult: Model[] = [
   {
     id: 1,
-    model: 'model'
+    name: 'model', makeId: 1
   }
 ];
 const colorResult: Color[] = [
   {
     id: 1,
-    color: 'color',
+    name: 'color',
     hex: '#000000'
   }
 ];
@@ -73,25 +73,25 @@ describe('VehiclesService', () => {
   });
 
   it('should get list of makes', (done) => {
-    service.getListMake({}).subscribe((data) => {
+    service.getListMake().subscribe((data) => {
       expect(data).toEqual(makeResult);
       done();
     });
 
     const req = httpTestingController.expectOne(`${service['controller']}/catalog/makes`);
     expect(req.request.method).toEqual('GET');
-    req.flush({ result: makeResult });
+    req.flush(makeResult);
   });
 
   it('should get list of models', (done) => {
-    service.getListModel('make', {}).subscribe((data) => {
+    service.getListModel(1).subscribe((data) => {
       expect(data).toEqual(modelResult);
       done();
     });
 
-    const req = httpTestingController.expectOne(`${service['controller']}/catalog/makes/make/models`);
+    const req = httpTestingController.expectOne(`${service['controller']}/catalog/makes/1/models`);
     expect(req.request.method).toEqual('GET');
-    req.flush({ result: modelResult });
+    req.flush(modelResult);
   });
 
   it('should get list of colors', (done) => {
@@ -115,14 +115,9 @@ describe('VehiclesService', () => {
     req.flush({});
   });
 
-  it('should delete a vehicle', (done) => {
-    service.delete(1).subscribe(() => {
-      done();
-    });
-
-    const req = httpTestingController.expectOne(`${service['controller']}/1`);
-    expect(req.request.method).toEqual('DELETE');
-    req.flush({});
+  it('does not expose unsupported vehicle deletion', () => {
+    expect('delete' in service).toBeFalse();
+    httpTestingController.expectNone(`${service['controller']}/1`);
   });
 
   it('should update a vehicle', (done) => {
@@ -131,7 +126,7 @@ describe('VehiclesService', () => {
     });
 
     const req = httpTestingController.expectOne(`${service['controller']}/1`);
-    expect(req.request.method).toEqual('PATCH');
+    expect(req.request.method).toEqual('PUT');
     req.flush({});
   });
 

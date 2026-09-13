@@ -6,10 +6,10 @@ import { PaginatedResult } from '../model/pagination.result';
 
 const paginationResponseDriver: PaginatedResult<string> = {
     pagination: {
-        currentPage: 1,
-        totalItems: 100,
+        page: 1,
+        totalElements: 100,
         totalPages: 10,
-        pageSize: 10
+        limit: 10
     },
     result: []
 }

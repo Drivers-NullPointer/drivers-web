@@ -38,7 +38,7 @@ describe('VerifyAccountComponent', () => {
   });
 
   it('should verify account', () => {
-    authServiceSpy.verifyAccount.and.returnValue(of({}));
+    authServiceSpy.verifyAccount.and.returnValue(of('Success'));
 
     component.ngOnInit();
 

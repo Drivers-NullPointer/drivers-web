@@ -11,9 +11,9 @@ import { generatePaginationQuery } from '../../../utils/query-pagination/generat
 
 const paginationResponseClient: PaginatedResult<Client> = {
   pagination: {
-    currentPage: 1,
-    pageSize: 10,
-    totalItems: 100,
+    page: 1,
+    limit: 10,
+    totalElements: 100,
     totalPages: 10
   },
   result: []

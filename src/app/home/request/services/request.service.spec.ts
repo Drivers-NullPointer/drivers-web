@@ -8,10 +8,10 @@ import { PaginatedResult } from '../../../shared/pagination/model/pagination.res
 
 const paginationResult: PaginatedResult<RequestTrip> = {
   pagination: {
-    currentPage: 1,
-    totalItems: 1,
+    page: 1,
+    totalElements: 1,
     totalPages: 1,
-    pageSize: 1
+    limit: 1
   },
   result: []
 };

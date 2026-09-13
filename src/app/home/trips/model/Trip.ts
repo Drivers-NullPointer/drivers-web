@@ -1,6 +1,6 @@
 export interface Trip {
     id: string;
-    startAt: Date;
+    startAt: string | null;
     endAt: string | null;
     state: string;
     driverReceivedAt?: string | null;

@@ -10,9 +10,9 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 const paginationResponse: PaginatedResult<Client> = {
   pagination: {
-    currentPage: 1,
-    pageSize: 10,
-    totalItems: 100,
+    page: 1,
+    limit: 10,
+    totalElements: 100,
     totalPages: 10
   },
   result: [

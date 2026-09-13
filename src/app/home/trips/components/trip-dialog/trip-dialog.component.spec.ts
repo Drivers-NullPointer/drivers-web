@@ -10,22 +10,20 @@ import { DialogAction } from '../../../../shared/model/Dialog.action';
 
 const mockRequestTripWithOutTracking: Trip = {
   id: "1",
-  startAt: new Date(),
+  startAt: null,
   endAt: null,
-  tripState: "IN_PROGRESS",
-  client: {
-    id: 1,
-    name: "Client Name"
-  },
+  state: "IN_PROGRESS",
+  clientId: 1,
+  driverId: 1,
   driver: {
     id: 1,
-    name: "Driver Name"
+    name: "Driver Name", lastname: "Test"
   },
 };
 
 const mockRequestTrip: Trip = {
   ...mockRequestTripWithOutTracking,
-  tracking: 'tracking'
+  route: { encodedPolyline: 'tracking', polylinePrecision: 5 }
 };
 
 

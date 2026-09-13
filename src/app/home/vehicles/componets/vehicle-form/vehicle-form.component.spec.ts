@@ -16,12 +16,12 @@ import { PaginatedResult } from '../../../../shared/pagination/model/pagination.
 const color: Color[] = [
   {
     id: 1,
-    color: 'Red',
+    name: 'Red',
     hex: '#FF0000'
   },
   {
     id: 2,
-    color: 'Green',
+    name: 'Green',
     hex: '#00FF00'
   }
 ];
@@ -29,27 +29,28 @@ const color: Color[] = [
 const models: Model[] = [
   {
     id: 1,
-    model: 'Model 1'
+    name: 'Model 1', makeId: 1
   },
   {
     id: 2,
-    model: 'Model 2'
+    name: 'Model 2', makeId: 1
   }
 ];
 
 const makes: Make[] = [
   {
     id: 1,
-    make: 'Make 1'
+    name: 'Make 1'
   },
   {
     id: 2,
-    make: 'Make 2'
+    name: 'Make 2'
   }
 ];
 
 const dialogData: DialogData<Vehicle> = {
   data: {
+    year: 2020, makeId: 1, modelId: 1, colorId: 1,
     id: 1,
     number: 123,
     isRotulated: false,
@@ -64,9 +65,9 @@ const dialogData: DialogData<Vehicle> = {
 const vehicleResponse: PaginatedResult<Vehicle> = {
   result: [],
   pagination: {
-    currentPage: 1,
-    pageSize: 1,
-    totalItems: 1,
+    page: 1,
+    limit: 1,
+    totalElements: 1,
     totalPages: 1
   }
 }
@@ -100,46 +101,50 @@ describe('VehicleFormComponent', () => {
 
     fixture = TestBed.createComponent(VehicleFormComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should request makes when make control changes', fakeAsync(() => {
-    component.ngOnInit();
+  it('loads makes once and does not request models for free text', fakeAsync(() => {
+    fixture.detectChanges();
     component.vehicleForm.controls.make.setValue('Make 1', { emitEvent: true });
     tick(500);
-    expect(vehiclesService.getListMake).toHaveBeenCalledWith({ page: 1, limit: 3, search: 'Make 1' });
+    expect(vehiclesService.getListMake).toHaveBeenCalledOnceWith();
+    expect(vehiclesService.getListModel).not.toHaveBeenCalled();
+    expect(component.vehicleForm.controls.make.hasError('catalogSelection')).toBeTrue();
   }));
 
-  it('should request models when model control changes with make value', fakeAsync(() => {
-    component.ngOnInit();
+  it('requests models by selected make ID and resets the prior model', fakeAsync(() => {
+    fixture.detectChanges();
     component.vehicleForm.controls.model.setValue('Model 1', { emitEvent: true });
-    component.vehicleForm.controls.make.setValue('Make 1', { emitEvent: true });
+    component.vehicleForm.controls.make.setValue({ id: 1, value: 'Make 1' });
     tick(500);
-    expect(vehiclesService.getListModel).toHaveBeenCalledWith('Make 1', { page: 1, limit: 3, search: 'Model 1' });
+    expect(vehiclesService.getListModel).toHaveBeenCalledOnceWith(1);
+    expect(component.vehicleForm.controls.model.value).toBe('');
+    expect(component.modelOptions()).toEqual([{ id: 1, value: 'Model 1' }, { id: 2, value: 'Model 2' }]);
   }));
 
   it('should not request models when model control changes without make value', fakeAsync(() => {
-    component.ngOnInit();
+    fixture.detectChanges();
     component.vehicleForm.controls.model.setValue('Model 1', { emitEvent: true });
     tick(500);
-    expect(vehiclesService.getListModel).toHaveBeenCalledWith('', { page: 1, limit: 3, search: 'Model 1' });
+    expect(vehiclesService.getListModel).not.toHaveBeenCalled();
   }));
 
   it('should save vehicle when form is valid', () => {
     component.vehicleForm.setValue({
-      make: 'Make 1',
-      model: 'Model 1',
-      color: 'Red',
+      make: { id: 1, value: 'Make 1' },
+      model: { id: 1, value: 'Model 1' },
+      color: 1,
       number: 123,
-      plates: '123',
+      plates: 'ABC123',
+      year: 2020,
       isRotulated: false
     });
     component.save();
-    expect(dialogRefSpy.close).toHaveBeenCalled();
+    expect(dialogRefSpy.close).toHaveBeenCalledWith({ number: 123, plates: 'ABC123', year: 2020, modelId: 1, colorId: 1, isRotulated: false });
 
   });
 

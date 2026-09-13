@@ -54,7 +54,7 @@ describe('ResetPasswordComponent', () => {
 
   it('should submit if form is valid and success', () => {
 
-    authService.resetPassword.and.returnValue(of({}));
+    authService.resetPassword.and.returnValue(of(void 0));
 
     component.ngOnInit();
     component.form.patchValue({

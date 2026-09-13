@@ -15,9 +15,9 @@ const mockPaginationService: IPaginationServices = {
   getAllPaginated: <T>(paginationRequest: PaginationRequest): Observable<PaginatedResult<T>> => {
     const result: PaginatedResult<T> = {
       pagination: {
-        currentPage: 1,
-        pageSize: 10,
-        totalItems: 100,
+        page: 1,
+        limit: 10,
+        totalElements: 100,
         totalPages: 10
       },
       result: ['test1', 'test2'] as unknown as T[]

@@ -116,7 +116,11 @@ export class DriversFormDialogComponent {
 
   private getCreateDriverDto(): UpdateDriverDto {
     const birthdateValue = this.formDriver.controls.birthdate.value!;
-    const birthdate = new Date(birthdateValue).toISOString()
+    // LocalDate on the backend: keep the selected calendar day, not a UTC instant.
+    const date = new Date(birthdateValue);
+    const birthdate = /^\d{4}-\d{2}-\d{2}$/.test(birthdateValue)
+      ? birthdateValue
+      : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     return {
       name: this.formDriver.controls.name.value!,
       lastname: this.formDriver.controls.lastname.value!,
