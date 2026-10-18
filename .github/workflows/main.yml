@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+    paths-ignore:
+      - '.github/scripts/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
@@ -19,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+      - name: Test retention safeguards
+        run: python3 -B -m unittest discover -s .github/scripts -p 'test_*retention*.py'
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -40,6 +45,9 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: true
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Gate deployment on Hosting retention and secret version limits
+        run: python3 .github/scripts/retention_guard.py --project new-drivers-test --hosting-site new-drivers-test --secrets
 
       - name: Deploy to Firebase Hosting
         env:
@@ -49,3 +57,5 @@ jobs:
           --only hosting
           --project new-drivers-test
           --non-interactive
+      - name: Verify retention after successful release
+        run: python3 .github/scripts/retention_guard.py --project new-drivers-test --hosting-site new-drivers-test --secrets
